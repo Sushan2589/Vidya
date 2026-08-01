@@ -1,0 +1,10 @@
+# Exclude heavy package dependencies
+node_modules/
+
+# Exclude environment secrets
+.env*
+apikeys.txt
+
+# Exclude build files
+dist/
+*.log 
