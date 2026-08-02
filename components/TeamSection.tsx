@@ -45,14 +45,20 @@ function TeamPhoto({ image, alt }: { image?: TeamMember["image"]; alt: string })
 export function TeamSection() {
   return (
     <section className="relative bg-[#ddddd6] px-6 py-28 sm:py-36" id="team">
-      <div className="mx-auto mb-16 max-w-2xl text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto mb-16 max-w-2xl text-center"
+      >
         <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
           Know Your Team
         </p>
         <h2 className="font-serif text-4xl text-[#16324F] sm:text-5xl">
           The people behind VIDYA
         </h2>
-      </div>
+      </motion.div>
 
       <div className="mx-auto grid max-w-4xl gap-12 sm:grid-cols-3 sm:gap-8">
         {founders.map((member, i) => (

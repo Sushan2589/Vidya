@@ -88,14 +88,20 @@ export function AboutTimeline() {
 
   return (
     <section className="relative bg-[#ddddd6] px-6 py-6 " id="about">
-      <div className="mx-auto mb-20 max-w-2xl text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto mb-20 max-w-2xl text-center"
+      >
         <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
           Our Story
         </p>
         <h2 className="font-serif text-4xl text-[#16324F] sm:text-5xl">
           How VIDYA came to be
         </h2>
-      </div>
+      </motion.div>
 
       <div ref={containerRef} className="relative mx-auto max-w-3xl">
         <div className="absolute left-7 top-0 h-full w-px bg-[#16324F]/12 sm:left-1/2 sm:-translate-x-1/2" />

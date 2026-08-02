@@ -66,7 +66,13 @@ export function ResourcesSection() {
       {/* Grid */}
       <div className="relative px-6 pb-28">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-10 flex flex-wrap justify-center gap-2">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-10 flex flex-wrap justify-center gap-2"
+          >
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -85,7 +91,7 @@ export function ResourcesSection() {
                 <span className="relative">{cat}</span>
               </button>
             ))}
-          </div>
+          </motion.div>
 
           <motion.div layout className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
