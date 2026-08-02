@@ -5,10 +5,11 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { name: "About", href: "#about" },
-  { name: "Olympiads", href: "#olympiads" },
-  { name: "Resources", href: "#resources" },
-  { name: "Contact", href: "#contact" },
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Olympiads", href: "/olympiads" },
+  { name: "Resources", href: "/resources" },
+  { name: "Contact", href: "/contact" },
 ];
 
 export function Navbar() {
@@ -16,7 +17,7 @@ export function Navbar() {
     <motion.header
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 1.7 }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.8}}
       className="fixed inset-x-0 top-5 z-50 flex justify-center px-4 sm:top-6"
     >
       <nav

@@ -153,13 +153,19 @@ export function Hero() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-12"
+          className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:gap-6"
         >
           <Link
-            href="#explore"
+            href="/olympiads"
             className="inline-flex rounded-full border border-[#C9A227]/50 bg-[#16324F] px-7 py-2.5 text-sm font-medium tracking-wide text-[#F3F1EA] transition-colors hover:border-[#C9A227] hover:bg-[#1D3F63]"
           >
-            Explore
+            Explore Olympiads
+          </Link>
+          <Link
+            href="/about"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A227]/50 bg-[#C9A227]/10 px-5 py-2.5 text-sm font-medium tracking-wide text-[#16324F] transition-colors hover:border-[#C9A227] hover:bg-[#C9A227]/20"
+          >
+            Learn more
           </Link>
         </motion.div>
       </div>
