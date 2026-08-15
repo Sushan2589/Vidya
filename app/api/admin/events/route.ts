@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     slug = `${base}-${++n}`;
   }
 
-  db.run(
+  db.prepare(
     `INSERT INTO events
       (slug, title, subject, level, summary, details, eligibility, syllabus,
        held_in, date, location, registration_link, image_url, sort_order, created_at, updated_at)
