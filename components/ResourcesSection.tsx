@@ -34,8 +34,11 @@ function iconFor(category: string) {
 // when the link doesn't end in a recognizable file extension (e.g. a plain
 // webpage link rather than a direct file).
 function formatLabel(fileUrl: string) {
+  if (!fileUrl) return "Link";
+
   const match = fileUrl.split("?")[0].match(/\.([a-zA-Z0-9]{2,5})$/);
   if (!match) return "Link";
+
   return match[1].toUpperCase();
 }
 
