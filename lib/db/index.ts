@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 import { Database } from "bun:sqlite";
 
 // One file-backed SQLite DB. Bun's built-in driver — no package to install,
