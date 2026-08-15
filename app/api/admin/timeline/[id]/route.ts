@@ -19,8 +19,18 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const timelineId = Number(id);
+
+  if (!Number.isInteger(timelineId)) {
+    return NextResponse.json(
+      { error: "Invalid timeline ID" },
+      { status: 400 }
+    );
+  }
+
   const body = await req.json();
   const parsed = timelineSchema.safeParse(body);
+
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.flatten() },
@@ -30,20 +40,46 @@ export async function PUT(
 
   const { year, title, description, sortOrder } = parsed.data;
 
-  db.query(
-    `UPDATE timeline_items
-     SET year = $year, title = $title, description = $description, sort_order = $sortOrder
-     WHERE id = $id`
-  ).run({
-    $year: year,
-    $title: title,
-    $description: description || null,
-    $sortOrder: sortOrder,
-    $id: Number(id),
+  const result = await db.execute({
+    sql: `
+      UPDATE timeline_items
+      SET
+        year = ?,
+        title = ?,
+        description = ?,
+        sort_order = ?
+      WHERE id = ?
+    `,
+    args: [
+      year,
+      title,
+      description || null,
+      sortOrder,
+      timelineId,
+    ],
   });
 
-  const row = db.query(`${SELECT} WHERE id = $id`).get({ $id: Number(id) });
-  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (result.rowsAffected === 0) {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404 }
+    );
+  }
+
+  const rowResult = await db.execute({
+    sql: `${SELECT} WHERE id = ?`,
+    args: [timelineId],
+  });
+
+  const row = rowResult.rows[0];
+
+  if (!row) {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json(row);
 }
 
@@ -52,8 +88,26 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  db.query("DELETE FROM timeline_items WHERE id = $id").run({
-    $id: Number(id),
+  const timelineId = Number(id);
+
+  if (!Number.isInteger(timelineId)) {
+    return NextResponse.json(
+      { error: "Invalid timeline ID" },
+      { status: 400 }
+    );
+  }
+
+  const result = await db.execute({
+    sql: `DELETE FROM timeline_items WHERE id = ?`,
+    args: [timelineId],
   });
+
+  if (result.rowsAffected === 0) {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json({ ok: true });
 }

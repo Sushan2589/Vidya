@@ -3,11 +3,14 @@ import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-function countOf(table: string) {
-  const row = db.query(`SELECT COUNT(*) AS count FROM ${table}`).get() as {
-    count: number;
-  };
-  return row.count;
+async function countOf(table: string) {
+  const result = await db.execute(
+    `SELECT COUNT(*) AS count FROM ${table}`
+  );
+
+  const row = result.rows[0];
+
+  return Number(row?.count ?? 0);
 }
 
 export default function DashboardPage() {
@@ -31,7 +34,7 @@ export default function DashboardPage() {
         Dashboard
       </h1>
       <p className="mt-1 text-sm text-[#16324F]/60">
-        A quick look at what's live on the site.
+        A quick look at what&apos;s live on the site.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">

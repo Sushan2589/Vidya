@@ -10,7 +10,12 @@ const resourceSchema = z.object({
 });
 
 const SELECT = `
-  SELECT id, title, description, file_url AS fileUrl, category
+  SELECT
+    id,
+    title,
+    description,
+    file_url AS fileUrl,
+    category
   FROM resources
 `;
 
@@ -19,8 +24,19 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const resourceId = Number(id);
+
+  if (!Number.isInteger(resourceId)) {
+    return NextResponse.json(
+      { error: "Invalid resource ID" },
+      { status: 400 }
+    );
+  }
+
   const body = await req.json();
+
   const parsed = resourceSchema.safeParse(body);
+
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.flatten() },
@@ -30,20 +46,46 @@ export async function PUT(
 
   const { title, description, fileUrl, category } = parsed.data;
 
-  db.query(
-    `UPDATE resources
-     SET title = $title, description = $description, file_url = $fileUrl, category = $category
-     WHERE id = $id`
-  ).run({
-    $title: title,
-    $description: description || null,
-    $fileUrl: fileUrl,
-    $category: category || null,
-    $id: Number(id),
+  const result = await db.execute({
+    sql: `
+      UPDATE resources
+      SET
+        title = ?,
+        description = ?,
+        file_url = ?,
+        category = ?
+      WHERE id = ?
+    `,
+    args: [
+      title,
+      description || null,
+      fileUrl,
+      category || null,
+      resourceId,
+    ],
   });
 
-  const row = db.query(`${SELECT} WHERE id = $id`).get({ $id: Number(id) });
-  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (result.rowsAffected === 0) {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404 }
+    );
+  }
+
+  const rowResult = await db.execute({
+    sql: `${SELECT} WHERE id = ?`,
+    args: [resourceId],
+  });
+
+  const row = rowResult.rows[0];
+
+  if (!row) {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json(row);
 }
 
@@ -52,6 +94,26 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  db.query("DELETE FROM resources WHERE id = $id").run({ $id: Number(id) });
+  const resourceId = Number(id);
+
+  if (!Number.isInteger(resourceId)) {
+    return NextResponse.json(
+      { error: "Invalid resource ID" },
+      { status: 400 }
+    );
+  }
+
+  const result = await db.execute({
+    sql: `DELETE FROM resources WHERE id = ?`,
+    args: [resourceId],
+  });
+
+  if (result.rowsAffected === 0) {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json({ ok: true });
 }

@@ -15,13 +15,17 @@ const SELECT = `
 `;
 
 export async function GET() {
-  const rows = db.query(`${SELECT} ORDER BY created_at DESC`).all();
-  return NextResponse.json(rows);
+  const result = await db.execute(
+    `${SELECT} ORDER BY created_at DESC`
+  );
+
+  return NextResponse.json(result.rows);
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = resourceSchema.safeParse(body);
+
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.flatten() },
@@ -31,22 +35,32 @@ export async function POST(req: NextRequest) {
 
   const { title, description, fileUrl, category } = parsed.data;
 
-  const result = db
-    .query(
-      `INSERT INTO resources (title, description, file_url, category, created_at)
-       VALUES ($title, $description, $fileUrl, $category, $now)`
-    )
-    .run({
-      $title: title,
-      $description: description || null,
-      $fileUrl: fileUrl,
-      $category: category || null,
-      $now: Date.now(),
-    });
+  const result = await db.execute({
+    sql: `
+      INSERT INTO resources (
+        title,
+        description,
+        file_url,
+        category,
+        created_at
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `,
+    args: [
+      title,
+      description || null,
+      fileUrl,
+      category || null,
+      Date.now(),
+    ],
+  });
 
-  const row = db
-    .query(`${SELECT} WHERE id = $id`)
-    .get({ $id: result.lastInsertRowid });
+  const rowResult = await db.execute({
+  sql: `${SELECT} WHERE id = ?`,
+  args: [Number(result.lastInsertRowid)],
+});
+
+  const row = rowResult.rows[0];
 
   return NextResponse.json(row, { status: 201 });
 }

@@ -1,68 +1,102 @@
-/// <reference types="bun" />
-import { Database } from "bun:sqlite";
+import { createClient } from "@tursodatabase/serverless/compat";
 
-// One file-backed SQLite DB. Bun's built-in driver — no package to install,
-// no native compilation step.
-const db = new Database(process.env.DATABASE_PATH || "vidya.db");
-db.exec("PRAGMA journal_mode = WAL;");
+const url = process.env.TURSO_DATABASE_URL;
+const authToken = process.env.TURSO_AUTH_TOKEN;
 
-// Runs once per process start. CREATE TABLE IF NOT EXISTS makes this safe
-// to run every time — first run creates the tables, every run after that
-// is a no-op. This replaces the old `drizzle-kit push` migration step.
-db.exec(`
-  CREATE TABLE IF NOT EXISTS admin_users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    created_at INTEGER NOT NULL
+if (!url) {
+  throw new Error("TURSO_DATABASE_URL is not set");
+}
+
+if (!authToken) {
+  throw new Error("TURSO_AUTH_TOKEN is not set");
+}
+
+// Turso/libSQL client.
+// Unlike bun:sqlite, this client is asynchronous.
+const db = createClient({
+  url,
+  authToken,
+});
+
+/**
+ * Initialize the database schema.
+ *
+ * This runs once when this module is loaded in a server process.
+ * CREATE TABLE IF NOT EXISTS makes it safe to run repeatedly.
+ */
+async function initializeDatabase() {
+  await db.batch(
+    [
+      `
+      CREATE TABLE IF NOT EXISTS admin_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )
+      `,
+
+      `
+      CREATE TABLE IF NOT EXISTS events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug TEXT UNIQUE NOT NULL,
+        title TEXT NOT NULL,
+        subject TEXT NOT NULL DEFAULT '',
+        level TEXT NOT NULL DEFAULT '',
+        summary TEXT NOT NULL DEFAULT '',
+        details TEXT NOT NULL DEFAULT '',
+        eligibility TEXT NOT NULL DEFAULT '',
+        syllabus TEXT NOT NULL DEFAULT '',
+        held_in TEXT NOT NULL DEFAULT '',
+        date TEXT,
+        location TEXT,
+        registration_link TEXT,
+        image_url TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+      `,
+
+      `
+      CREATE TABLE IF NOT EXISTS resources (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        file_url TEXT NOT NULL,
+        category TEXT,
+        created_at INTEGER NOT NULL
+      )
+      `,
+
+      `
+      CREATE TABLE IF NOT EXISTS timeline_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        year TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )
+      `,
+    ],
+    "write"
+  );
+}
+
+/**
+ * Adds missing columns to an existing events table.
+ *
+ * Safe to run repeatedly.
+ */
+async function migrateEventsTable() {
+  const result = await db.execute(
+    "PRAGMA table_info(events)"
   );
 
-  CREATE TABLE IF NOT EXISTS events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    slug TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
-    subject TEXT NOT NULL DEFAULT '',
-    level TEXT NOT NULL DEFAULT '',
-    summary TEXT NOT NULL DEFAULT '',
-    details TEXT NOT NULL DEFAULT '',
-    eligibility TEXT NOT NULL DEFAULT '',
-    syllabus TEXT NOT NULL DEFAULT '',
-    held_in TEXT NOT NULL DEFAULT '',
-    date TEXT,
-    location TEXT,
-    registration_link TEXT,
-    image_url TEXT,
-    sort_order INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-  );
-
-  CREATE TABLE IF NOT EXISTS resources (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    description TEXT,
-    file_url TEXT NOT NULL,
-    category TEXT,
-    created_at INTEGER NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS timeline_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    year TEXT NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    sort_order INTEGER NOT NULL DEFAULT 0,
-    created_at INTEGER NOT NULL
-  );
-`);
-
-
-function migrateEventsTable(db: Database) {
   const existingCols = new Set(
-    (db.query(`PRAGMA table_info(events)`).all() as { name: string }[]).map(
-      (c) => c.name
-    )
+    result.rows.map((row) => String(row.name))
   );
- 
+
   const newColumns: [string, string][] = [
     ["slug", "TEXT"],
     ["subject", "TEXT NOT NULL DEFAULT ''"],
@@ -75,35 +109,58 @@ function migrateEventsTable(db: Database) {
     ["image_url", "TEXT"],
     ["sort_order", "INTEGER NOT NULL DEFAULT 0"],
   ];
- 
+
   for (const [name, ddl] of newColumns) {
     if (!existingCols.has(name)) {
-      db.run(`ALTER TABLE events ADD COLUMN ${name} ${ddl}`);
+      await db.execute(
+        `ALTER TABLE events ADD COLUMN ${name} ${ddl}`
+      );
     }
   }
- 
-  // slug can't carry a UNIQUE constraint via ALTER TABLE ADD COLUMN, so
-  // backfill any existing rows first, then add the unique index separately.
+
+  // slug cannot be added with UNIQUE through ALTER TABLE.
+  // Backfill existing events first, then create the unique index.
   if (!existingCols.has("slug")) {
-    const rows = db.query(`SELECT id, title FROM events`).all() as {
-      id: number;
-      title: string;
-    }[];
-    for (const row of rows) {
+    const rows = await db.execute(
+      "SELECT id, title FROM events"
+    );
+
+    for (const row of rows.rows) {
+      const id = Number(row.id);
+      const title = String(row.title ?? "");
+
       const slug =
-        row.title
+        title
           .toLowerCase()
           .trim()
           .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "") + `-${row.id}`;
-      db.run(`UPDATE events SET slug = ? WHERE id = ?`, [slug, row.id]);
+          .replace(/(^-|-$)/g, "") + `-${id}`;
+
+      await db.execute({
+        sql: `
+          UPDATE events
+          SET slug = ?
+          WHERE id = ?
+        `,
+        args: [slug, id],
+      });
     }
-    db.run(
-      `CREATE UNIQUE INDEX IF NOT EXISTS events_slug_idx ON events(slug)`
-    );
+
+    await db.execute(`
+      CREATE UNIQUE INDEX IF NOT EXISTS events_slug_idx
+      ON events(slug)
+    `);
   }
 }
- 
-migrateEventsTable(db);
 
+/**
+ * Initialize schema before the database client is exported.
+ *
+ * Top-level await ensures that routes importing this module
+ * don't start querying before the tables exist.
+ */
+await initializeDatabase();
+await migrateEventsTable();
+
+export { db };
 export default db;

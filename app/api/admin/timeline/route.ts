@@ -15,13 +15,18 @@ const SELECT = `
 `;
 
 export async function GET() {
-  const rows = db.query(`${SELECT} ORDER BY sort_order ASC`).all();
-  return NextResponse.json(rows);
+  const result = await db.execute(
+    `${SELECT} ORDER BY sort_order ASC`
+  );
+
+  return NextResponse.json(result.rows);
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+
   const parsed = timelineSchema.safeParse(body);
+
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.flatten() },
@@ -31,22 +36,32 @@ export async function POST(req: NextRequest) {
 
   const { year, title, description, sortOrder } = parsed.data;
 
-  const result = db
-    .query(
-      `INSERT INTO timeline_items (year, title, description, sort_order, created_at)
-       VALUES ($year, $title, $description, $sortOrder, $now)`
-    )
-    .run({
-      $year: year,
-      $title: title,
-      $description: description || null,
-      $sortOrder: sortOrder,
-      $now: Date.now(),
-    });
+  const result = await db.execute({
+    sql: `
+      INSERT INTO timeline_items (
+        year,
+        title,
+        description,
+        sort_order,
+        created_at
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `,
+    args: [
+      year,
+      title,
+      description || null,
+      sortOrder,
+      Date.now(),
+    ],
+  });
 
-  const row = db
-    .query(`${SELECT} WHERE id = $id`)
-    .get({ $id: result.lastInsertRowid });
+  const rowResult = await db.execute({
+    sql: `${SELECT} WHERE id = ?`,
+    args: [Number(result.lastInsertRowid)],
+  });
+
+  const row = rowResult.rows[0];
 
   return NextResponse.json(row, { status: 201 });
 }

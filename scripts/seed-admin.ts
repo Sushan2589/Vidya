@@ -4,6 +4,7 @@
 // there is no sign-up page on purpose.
 
 import db from "../lib/db";
+import bcrypt from "bcryptjs";
 
 const [username, password] = process.argv.slice(2);
 
@@ -17,23 +18,38 @@ if (password.length < 8) {
   process.exit(1);
 }
 
-const passwordHash = await Bun.password.hash(password, {
-  algorithm: "bcrypt",
-  cost: 12,
+const passwordHash = await bcrypt.hash(password, 12);
+
+const existingResult = await db.execute({
+  sql: "SELECT id FROM admin_users WHERE username = ?",
+  args: [username],
 });
 
-const existing = db
-  .query("SELECT id FROM admin_users WHERE username = $username")
-  .get({ $username: username });
+const existing = existingResult.rows[0];
 
 if (existing) {
-  db.query(
-    "UPDATE admin_users SET password_hash = $hash WHERE username = $username"
-  ).run({ $hash: passwordHash, $username: username });
+  await db.execute({
+    sql: `
+      UPDATE admin_users
+      SET password_hash = ?
+      WHERE username = ?
+    `,
+    args: [passwordHash, username],
+  });
+
   console.log(`Updated password for "${username}".`);
 } else {
-  db.query(
-    "INSERT INTO admin_users (username, password_hash, created_at) VALUES ($username, $hash, $now)"
-  ).run({ $username: username, $hash: passwordHash, $now: Date.now() });
+  await db.execute({
+    sql: `
+      INSERT INTO admin_users (
+        username,
+        password_hash,
+        created_at
+      )
+      VALUES (?, ?, ?)
+    `,
+    args: [username, passwordHash, Date.now()],
+  });
+
   console.log(`Created admin user "${username}".`);
 }
