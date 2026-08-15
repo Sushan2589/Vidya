@@ -1,19 +1,9 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Footer } from "@/components/Footer";
-import { Navbar } from '@/components/Navbar'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
@@ -22,26 +12,15 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: "VIDYA — STEM Olympiads in Nepal",
-  description:
-    "Spreading awareness and opportunity for Olympiads across Nepal. Where curiosity begins.",
+  description: "Spreading awareness and opportunity for Olympiads across Nepal. Where curiosity begins.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} dark h-full scroll-smooth antialiased`}
-    >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} dark h-full scroll-smooth antialiased`}>
       <body className="min-h-full flex flex-col bg-neutral-950">
-        <Navbar />
         {children}
-        <Footer />
-        
-        </body>
+      </body>
     </html>
   );
 }

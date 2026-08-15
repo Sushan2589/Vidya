@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
@@ -16,7 +17,9 @@ const LAUREL_LEAVES = [
 function LaurelBranch({ side }: { side: "left" | "right" }) {
   const flip = side === "right" ? -1 : 1;
   return (
-    <g transform={`translate(${side === "right" ? 260 : 0}, 0) scale(${flip}, 1)`}>
+    <g
+      transform={`translate(${side === "right" ? 260 : 0}, 0) scale(${flip}, 1)`}
+    >
       {LAUREL_LEAVES.map((leaf, i) => (
         <ellipse
           key={i}
@@ -32,6 +35,47 @@ function LaurelBranch({ side }: { side: "left" | "right" }) {
         />
       ))}
     </g>
+  );
+}
+
+function AnimatedCounter({
+  value,
+  suffix = "",
+  duration = 2.5,
+}: {
+  value: number;
+  suffix?: string;
+  duration?: number;
+}) {
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const progress = Math.min(
+        (currentTime - startTime) / (duration * 1000),
+        1,
+      );
+
+      // Smooth ease-out
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      setCount(Math.floor(eased * value));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [value, duration]);
+
+  return (
+    <span>
+      {count.toLocaleString()}
+      {suffix}
+    </span>
   );
 }
 
@@ -60,8 +104,22 @@ export function Hero() {
         style={{ animation: "vidya-rotate 90s linear infinite" }}
         aria-hidden
       >
-        <circle cx="310" cy="310" r="300" stroke="#16324F" strokeOpacity="0.12" strokeWidth="1" />
-        <circle cx="310" cy="310" r="252" stroke="#C9A227" strokeOpacity="0.25" strokeWidth="1" />
+        <circle
+          cx="310"
+          cy="310"
+          r="300"
+          stroke="#16324F"
+          strokeOpacity="0.12"
+          strokeWidth="1"
+        />
+        <circle
+          cx="310"
+          cy="310"
+          r="252"
+          stroke="#C9A227"
+          strokeOpacity="0.25"
+          strokeWidth="1"
+        />
       </motion.svg>
       <style>{`
         @keyframes vidya-rotate {
@@ -112,7 +170,11 @@ export function Hero() {
           <motion.h1
             initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.7, delay: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: 0.7,
+              delay: 0.42,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             className="relative font-serif text-6xl font-medium leading-none tracking-[0.08em] text-[#16324F] sm:text-7xl md:text-8xl lg:text-9xl"
           >
             VIDYA
@@ -167,6 +229,58 @@ export function Hero() {
           >
             Learn more
           </Link>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.7,
+            delay: 1.75,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="mt-16 grid w-full max-w-3xl grid-cols-2 gap-y-8 sm:grid-cols-4 sm:gap-y-0"
+        >
+          {/* Students */}
+          <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
+            <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
+              <AnimatedCounter value={6000} suffix="+" />
+            </div>
+            <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
+              Students Guided
+            </p>
+          </div>
+
+          {/* Provinces */}
+          <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
+            <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
+              <AnimatedCounter value={4} />
+            </div>
+            <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
+              Provinces Reached
+            </p>
+          </div>
+
+          {/* Years */}
+          <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
+            <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
+              <AnimatedCounter value={2} />
+              <span>+</span>
+            </div>
+            <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
+              Years Active
+            </p>
+          </div>
+
+          {/* Volunteers */}
+          <div className="flex flex-col items-center px-4">
+            <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
+              <AnimatedCounter value={75} suffix="+" />
+            </div>
+            <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
+              Volunteers
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>

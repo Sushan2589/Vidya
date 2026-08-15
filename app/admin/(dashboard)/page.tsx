@@ -1,0 +1,55 @@
+import Link from "next/link";
+import db from "@/lib/db";
+
+export const dynamic = "force-dynamic";
+
+function countOf(table: string) {
+  const row = db.query(`SELECT COUNT(*) AS count FROM ${table}`).get() as {
+    count: number;
+  };
+  return row.count;
+}
+
+export default function DashboardPage() {
+  const cards = [
+    { label: "Events", count: countOf("events"), href: "/admin/events" },
+    {
+      label: "Resources",
+      count: countOf("resources"),
+      href: "/admin/resources",
+    },
+    {
+      label: "Timeline items",
+      count: countOf("timeline_items"),
+      href: "/admin/timeline",
+    },
+  ];
+
+  return (
+    <div>
+      <h1 className="font-serif text-3xl font-medium text-[#16324F]">
+        Dashboard
+      </h1>
+      <p className="mt-1 text-sm text-[#16324F]/60">
+        A quick look at what's live on the site.
+      </p>
+
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {cards.map((card) => (
+          <Link
+            key={card.label}
+            href={card.href}
+            className="rounded-2xl border border-[#16324F]/10 bg-[#F3F1EA] p-6 transition-colors hover:border-[#C9A227]/50"
+          >
+            <p className="text-4xl font-medium text-[#16324F]">
+              {card.count}
+            </p>
+            <p className="mt-1 text-sm font-medium uppercase tracking-wide text-[#16324F]/55">
+              {card.label}
+            </p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
