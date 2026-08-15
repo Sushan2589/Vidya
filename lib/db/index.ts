@@ -96,10 +96,7 @@ function migrateEventsTable(db: Database) {
           .trim()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "") + `-${row.id}`;
-      db.run(`UPDATE events SET slug = $slug WHERE id = $id`, {
-        $slug: slug,
-        $id: row.id,
-      });
+      db.run(`UPDATE events SET slug = ? WHERE id = ?`, [slug, row.id]);
     }
     db.run(
       `CREATE UNIQUE INDEX IF NOT EXISTS events_slug_idx ON events(slug)`

@@ -48,29 +48,29 @@ export async function PUT(
 
   db.run(
     `UPDATE events SET
-      slug = $slug, title = $title, subject = $subject, level = $level,
-      summary = $summary, details = $details, eligibility = $eligibility,
-      syllabus = $syllabus, held_in = $heldIn, date = $date,
-      location = $location, registration_link = $registrationLink,
-      image_url = $imageUrl, sort_order = $sortOrder
-     WHERE id = $id`,
-    {
-      $slug: slug,
-      $title: e.title,
-      $subject: e.subject,
-      $level: e.level,
-      $summary: e.summary,
-      $details: e.details,
-      $eligibility: e.eligibility ?? "",
-      $syllabus: e.syllabus ?? "",
-      $heldIn: e.heldIn,
-      $date: e.date ?? null,
-      $location: e.location ?? null,
-      $registrationLink: e.registrationLink || null,
-      $imageUrl: e.imageUrl || null,
-      $sortOrder: e.sortOrder ?? 0,
-      $id: id,
-    }
+      slug = ?, title = ?, subject = ?, level = ?,
+      summary = ?, details = ?, eligibility = ?,
+      syllabus = ?, held_in = ?, date = ?,
+      location = ?, registration_link = ?,
+      image_url = ?, sort_order = ?
+     WHERE id = ?`,
+    [
+      slug,
+      e.title,
+      e.subject,
+      e.level,
+      e.summary,
+      e.details,
+      e.eligibility ?? "",
+      e.syllabus ?? "",
+      e.heldIn,
+      e.date ?? null,
+      e.location ?? null,
+      e.registrationLink || null,
+      e.imageUrl || null,
+      e.sortOrder ?? 0,
+      id,
+    ]
   );
 
   return NextResponse.json({ slug });
@@ -81,6 +81,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  db.run(`DELETE FROM events WHERE id = $id`, { $id: id });
+  db.run(`DELETE FROM events WHERE id = ?`, [id]);
   return NextResponse.json({ ok: true });
 }
