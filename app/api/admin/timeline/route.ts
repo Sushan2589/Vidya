@@ -6,6 +6,7 @@ const timelineSchema = z.object({
   year: z.string().min(1),
   title: z.string().min(1),
   description: z.string().optional(),
+  imageUrl: z.string().optional(),
   sortOrder: z.number().int().default(0),
 });
 
@@ -22,11 +23,12 @@ function mapTimelineRow(row: DbRow) {
     year: String(v[1] ?? ""),
     title: String(v[2] ?? ""),
     description: v[3] ? String(v[3]) : null,
-    sortOrder: Number(v[4] ?? 0),
+    imageUrl: v[4] ? String(v[4]) : null,
+    sortOrder: Number(v[5] ?? 0),
   };
 }
 
-const SELECT = `SELECT id, year, title, description, sort_order FROM timeline_items`;
+const SELECT = `SELECT id, year, title, description, image_url, sort_order FROM timeline_items`;
 
 export async function GET() {
   const result = await db.execute(`${SELECT} ORDER BY sort_order ASC`);
@@ -41,11 +43,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { year, title, description, sortOrder } = parsed.data;
+  const { year, title, description, imageUrl, sortOrder } = parsed.data;
 
   const result = await db.execute({
-    sql: `INSERT INTO timeline_items (year, title, description, sort_order, created_at) VALUES (?, ?, ?, ?, ?)`,
-    args: [year, title, description || null, sortOrder, Date.now()],
+    sql: `INSERT INTO timeline_items (year, title, description, image_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
+    args: [year, title, description || null, imageUrl || null,   sortOrder, Date.now()],
   });
 
   const rowResult = await db.execute({

@@ -7,10 +7,17 @@ type TimelineItem = {
   year: string;
   title: string;
   description: string | null;
+  imageUrl: string | null;
   sortOrder: number;
 };
 
-const EMPTY_FORM = { year: "", title: "", description: "", sortOrder: "" };
+const EMPTY_FORM = {
+  year: "",
+  title: "",
+  description: "",
+  imageUrl: "",
+  sortOrder: "",
+};
 
 export default function TimelinePage() {
   const [items, setItems] = useState<TimelineItem[]>([]);
@@ -27,16 +34,16 @@ export default function TimelinePage() {
   }
 
   const loadItems = useCallback(async () => {
-  const res = await fetch("/api/admin/timeline");
-  const data: TimelineItem[] = await res.json();
-  setItems(data);
-  setLoading(false);
-}, []);
+    const res = await fetch("/api/admin/timeline");
+    const data: TimelineItem[] = await res.json();
+    setItems(data);
+    setLoading(false);
+  }, []);
 
-useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  loadItems();
-}, [loadItems]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadItems();
+  }, [loadItems]);
 
   function startEdit(item: TimelineItem) {
     setEditingId(item.id);
@@ -44,6 +51,7 @@ useEffect(() => {
       year: item.year,
       title: item.title,
       description: item.description || "",
+      imageUrl: item.imageUrl || "",
       sortOrder: String(item.sortOrder),
     });
     setError(null);
@@ -68,7 +76,9 @@ useEffect(() => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
-        sortOrder: Number(form.sortOrder) || 0,
+        sortOrder: editingId
+          ? Number(form.sortOrder) || 0 // keep existing order when editing
+          : Number(nextSortOrder(items)), // auto next-order when adding
       }),
     });
 
@@ -79,22 +89,22 @@ useEffect(() => {
       setError(
         typeof data.error === "string"
           ? data.error
-          : "Check the form and try again."
+          : "Check the form and try again.",
       );
       return;
     }
 
     cancelEdit();
-     setLoading(true);
+    setLoading(true);
     loadItems();
   }
 
   async function handleDelete(id: number) {
-  if (!confirm("Delete this timeline entry? This can't be undone.")) return;
-  await fetch(`/api/admin/timeline/${id}`, { method: "DELETE" });
-  setLoading(true);
-  loadItems();
-}
+    if (!confirm("Delete this timeline entry? This can't be undone.")) return;
+    await fetch(`/api/admin/timeline/${id}`, { method: "DELETE" });
+    setLoading(true);
+    loadItems();
+  }
 
   return (
     <div>
@@ -126,12 +136,9 @@ useEffect(() => {
           <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[#16324F]/70">
             Order
           </label>
-          <input
-            type="number"
-            value={form.sortOrder}
-            onChange={(e) => setForm({ ...form, sortOrder: e.target.value })}
-            className="w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25"
-          />
+          <div className="w-full rounded-lg border border-[#16324F]/10 bg-[#16324F]/5 px-3.5 py-2.5 text-sm text-[#16324F]/50">
+            Automatic — added at the end
+          </div>
         </div>
 
         <div className="sm:col-span-2">
@@ -153,9 +160,19 @@ useEffect(() => {
           <textarea
             rows={3}
             value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            className="w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25"
+          />
+        </div>
+
+        <div className="sm:col-span-2">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[#16324F]/70">
+            Image URL
+          </label>
+          <input
+            value={form.imageUrl}
+            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+            placeholder="https://..."
             className="w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25"
           />
         </div>

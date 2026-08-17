@@ -74,6 +74,7 @@ async function initializeDatabase() {
         year TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT,
+        image_url TEXT,
         sort_order INTEGER NOT NULL DEFAULT 0,
         created_at INTEGER NOT NULL
       )
@@ -92,6 +93,8 @@ async function migrateEventsTable() {
   const result = await db.execute(
     "PRAGMA table_info(events)"
   );
+
+
 
   const existingCols = new Set(
     result.rows.map((row) => String(row.name))
@@ -153,6 +156,15 @@ async function migrateEventsTable() {
   }
 }
 
+
+async function migrateTimelineTable() {
+  const result = await db.execute("PRAGMA table_info(timeline_items)");
+  const existingCols = new Set(result.rows.map((r) => String(r.name)));
+  if (!existingCols.has("image_url")) {
+    await db.execute(`ALTER TABLE timeline_items ADD COLUMN image_url TEXT`);
+  }
+}
+
 /**
  * Initialize schema before the database client is exported.
  *
@@ -161,6 +173,7 @@ async function migrateEventsTable() {
  */
 await initializeDatabase();
 await migrateEventsTable();
+await migrateTimelineTable();
 
 export { db };
 export default db;

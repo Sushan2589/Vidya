@@ -6,6 +6,7 @@ const timelineSchema = z.object({
   year: z.string().min(1),
   title: z.string().min(1),
   description: z.string().optional(),
+  imageUrl: z.string().optional(),
   sortOrder: z.number().int().default(0),
 });
 
@@ -22,11 +23,12 @@ function mapTimelineRow(row: DbRow) {
     year: String(v[1] ?? ""),
     title: String(v[2] ?? ""),
     description: v[3] ? String(v[3]) : null,
-    sortOrder: Number(v[4] ?? 0),
+    imageUrl: v[4] ? String(v[4]) : null,
+    sortOrder: Number(v[5] ?? 0),
   };
 }
 
-const SELECT = `SELECT id, year, title, description, sort_order FROM timeline_items`;
+const SELECT = `SELECT id, year, title, description, image_url, sort_order FROM timeline_items`;
 
 export async function PUT(
   req: NextRequest,
@@ -46,11 +48,11 @@ export async function PUT(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { year, title, description, sortOrder } = parsed.data;
+  const { year, title, description, imageUrl, sortOrder } = parsed.data;
 
   const result = await db.execute({
-    sql: `UPDATE timeline_items SET year = ?, title = ?, description = ?, sort_order = ? WHERE id = ?`,
-    args: [year, title, description || null, sortOrder, timelineId],
+    sql: `UPDATE timeline_items SET year = ?, title = ?, description = ?, image_url = ?, sort_order = ? WHERE id = ?`,
+    args: [year, title, description || null, imageUrl || null, sortOrder, timelineId],
   });
 
   if (result.rowsAffected === 0) {

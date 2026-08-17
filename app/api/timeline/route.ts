@@ -3,12 +3,7 @@ import db from "@/lib/db";
 
 export async function GET() {
   const result = await db.execute(`
-    SELECT
-      id,
-      year,
-      title,
-      description,
-      sort_order AS sortOrder
+    SELECT id, year, title, description, image_url AS imageUrl, sort_order AS sortOrder
     FROM timeline_items
     ORDER BY sort_order ASC
   `);
@@ -18,7 +13,8 @@ export async function GET() {
     year: String(row[1] ?? ""),
     title: String(row[2] ?? ""),
     description: row[3] ? String(row[3]) : null,
-    sortOrder: Number(row[4] ?? 0),
+    imageUrl: row[4] ? String(row[4]) : null,
+    sortOrder: Number(row[5] ?? 0),
   }));
 
   return NextResponse.json(rows);

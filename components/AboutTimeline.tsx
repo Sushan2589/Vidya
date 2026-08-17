@@ -10,14 +10,16 @@ type Milestone = {
   title: string;
   description: string | null;
   sortOrder: number;
-  image?: { src: string; alt: string };
+  imageUrl: string | null;
 };
 
 function Medallion({ label, isLast }: { label: string; isLast: boolean }) {
   return (
     <div
       className={`relative z-10 flex size-14 shrink-0 items-center justify-center rounded-full border-2 bg-[#ddddd6] text-xs font-semibold tracking-wide sm:size-16 sm:text-sm ${
-        isLast ? "border-[#C9A227] text-[#C9A227]" : "border-[#16324F] text-[#16324F]"
+        isLast
+          ? "border-[#C9A227] text-[#C9A227]"
+          : "border-[#16324F] text-[#16324F]"
       }`}
     >
       {isLast && (
@@ -28,7 +30,13 @@ function Medallion({ label, isLast }: { label: string; isLast: boolean }) {
   );
 }
 
-function MilestonePhoto({ image, isRight }: { image?: Milestone["image"]; isRight: boolean }) {
+function MilestonePhoto({
+  image,
+  isRight,
+}: {
+  image?: Milestone["imageUrl"];
+  isRight: boolean;
+}) {
   return (
     <div
       className={`mb-3 h-36 w-full max-w-[220px] overflow-hidden rounded-lg border border-[#C9A227]/40 bg-[#16324F]/5 sm:mb-4 ${
@@ -37,8 +45,8 @@ function MilestonePhoto({ image, isRight }: { image?: Milestone["image"]; isRigh
     >
       {image ? (
         <Image
-          src={image.src}
-          alt={image.alt}
+          src={image}
+          alt=""
           width={220}
           height={144}
           className="size-full object-cover"
@@ -111,7 +119,9 @@ export function AboutTimeline() {
         />
 
         {loading ? (
-          <p className="py-10 text-center text-sm text-[#16324F]/50">Loading…</p>
+          <p className="py-10 text-center text-sm text-[#16324F]/50">
+            Loading…
+          </p>
         ) : (
           <ol className="flex flex-col gap-16 sm:gap-20">
             {milestones.map((milestone, i) => {
@@ -128,7 +138,10 @@ export function AboutTimeline() {
                   className="relative grid w-full grid-cols-[56px_minmax(0,1fr)] items-start gap-5 sm:grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)] sm:gap-8"
                 >
                   <div className="col-start-1 row-start-1 sm:col-start-2 sm:justify-self-center">
-                    <Medallion label={isLast ? "Now" : milestone.year} isLast={isLast} />
+                    <Medallion
+                      label={isLast ? "Now" : milestone.year}
+                      isLast={isLast}
+                    />
                   </div>
 
                   <div
@@ -138,7 +151,12 @@ export function AboutTimeline() {
                         : "sm:col-start-1 sm:row-start-1 sm:text-right"
                     }`}
                   >
-                    <MilestonePhoto image={milestone.image} isRight={isRight} />
+                    <MilestonePhoto
+                      image={
+                        milestone.imageUrl??undefined  
+                      }
+                      isRight={isRight}
+                    />
                     <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-[#16324F]/50">
                       {milestone.year}
                     </p>
