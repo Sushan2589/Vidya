@@ -1,43 +1,17 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
 
 type Milestone = {
+  id: number;
   year: string;
   title: string;
-  summary: string;
+  description: string | null;
+  sortOrder: number;
   image?: { src: string; alt: string };
 };
-
-const milestones: Milestone[] = [
-  {
-    year: "2023",
-    title: "VIDYA is founded",
-    summary: "Started with one belief — students learn best when taught to think, not memorize.",
-  },
-  {
-    year: "2023",
-    title: "First cohort enrolled",
-    summary: "A small pilot group tested the curriculum that would shape everything after.",
-  },
-  {
-    year: "2024",
-    title: "First Olympiad hosted",
-    summary: "Students got a real stage to put what they'd learned to the test.",
-  },
-  {
-    year: "2025",
-    title: "Resource library opens",
-    summary: "Study guides and past papers became free for every enrolled student.",
-  },
-  {
-    year: "Today",
-    title: "Growing every year",
-    summary: "More students, more subjects, more olympiads — same mission, bigger reach.",
-  },
-];
 
 function Medallion({ label, isLast }: { label: string; isLast: boolean }) {
   return (
@@ -86,6 +60,32 @@ export function AboutTimeline() {
   });
   const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTimeline() {
+      try {
+        const res = await fetch("/api/timeline");
+        const data = await res.json();
+        if (!cancelled) setMilestones(data);
+      } catch {
+        if (!cancelled) setMilestones([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadTimeline();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!loading && milestones.length === 0) return null;
+
   return (
     <section className="relative bg-[#ddddd6] px-6 py-6 " id="about">
       <motion.div
@@ -110,46 +110,52 @@ export function AboutTimeline() {
           style={{ height: lineHeight }}
         />
 
-        <ol className="flex flex-col gap-16 sm:gap-20">
-          {milestones.map((milestone, i) => {
-            const isRight = i % 2 === 1;
-            const isLast = i === milestones.length - 1;
+        {loading ? (
+          <p className="py-10 text-center text-sm text-[#16324F]/50">Loading…</p>
+        ) : (
+          <ol className="flex flex-col gap-16 sm:gap-20">
+            {milestones.map((milestone, i) => {
+              const isRight = i % 2 === 1;
+              const isLast = i === milestones.length - 1;
 
-            return (
-              <motion.li
-                key={`${milestone.year}-${milestone.title}`}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="relative grid w-full grid-cols-[56px_minmax(0,1fr)] items-start gap-5 sm:grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)] sm:gap-8"
-              >
-                <div className="col-start-1 row-start-1 sm:col-start-2 sm:justify-self-center">
-                  <Medallion label={isLast ? "Now" : milestone.year} isLast={isLast} />
-                </div>
-
-                <div
-                  className={`col-start-2 row-start-1 min-w-0 pt-1.5 ${
-                    isRight
-                      ? "sm:col-start-3 sm:text-left"
-                      : "sm:col-start-1 sm:row-start-1 sm:text-right"
-                  }`}
+              return (
+                <motion.li
+                  key={milestone.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative grid w-full grid-cols-[56px_minmax(0,1fr)] items-start gap-5 sm:grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)] sm:gap-8"
                 >
-                  <MilestonePhoto image={milestone.image} isRight={isRight} />
-                  <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-[#16324F]/50">
-                    {milestone.year}
-                  </p>
-                  <h3 className="mb-2 break-words font-serif text-xl font-bold text-[#16324F] sm:text-2xl">
-                    {milestone.title}
-                  </h3>
-                  <p className="break-words text-sm leading-relaxed text-[#16324F]/70 sm:text-base">
-                    {milestone.summary}
-                  </p>
-                </div>
-              </motion.li>
-            );
-          })}
-        </ol>
+                  <div className="col-start-1 row-start-1 sm:col-start-2 sm:justify-self-center">
+                    <Medallion label={isLast ? "Now" : milestone.year} isLast={isLast} />
+                  </div>
+
+                  <div
+                    className={`col-start-2 row-start-1 min-w-0 pt-1.5 ${
+                      isRight
+                        ? "sm:col-start-3 sm:text-left"
+                        : "sm:col-start-1 sm:row-start-1 sm:text-right"
+                    }`}
+                  >
+                    <MilestonePhoto image={milestone.image} isRight={isRight} />
+                    <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-[#16324F]/50">
+                      {milestone.year}
+                    </p>
+                    <h3 className="mb-2 break-words font-serif text-xl font-bold text-[#16324F] sm:text-2xl">
+                      {milestone.title}
+                    </h3>
+                    {milestone.description && (
+                      <p className="break-words text-sm leading-relaxed text-[#16324F]/70 sm:text-base">
+                        {milestone.description}
+                      </p>
+                    )}
+                  </div>
+                </motion.li>
+              );
+            })}
+          </ol>
+        )}
       </div>
     </section>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Event = {
   id: number;
@@ -47,16 +47,17 @@ export default function EventsPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  async function loadEvents() {
-    setLoading(true);
-    const res = await fetch("/api/admin/events");
-    setEvents(await res.json());
-    setLoading(false);
-  }
+const loadEvents = useCallback(async () => {
+  const res = await fetch("/api/admin/events");
+  setEvents(await res.json());
+  setLoading(false);
+}, []);
 
-  useEffect(() => {
-    loadEvents();
-  }, []);
+useEffect(() => {
+   // eslint-disable-next-line react-hooks/set-state-in-effect
+  loadEvents();
+}, [loadEvents]);
+
 
   function startEdit(event: Event) {
     setEditingId(event.id);
@@ -83,41 +84,37 @@ export default function EventsPage() {
     setError(null);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  setSaving(true);
+  setError(null);
 
-    const url = editingId
-      ? `/api/admin/events/${editingId}`
-      : "/api/admin/events";
-    const res = await fetch(url, {
-      method: editingId ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+  const url = editingId ? `/api/admin/events/${editingId}` : "/api/admin/events";
+  const res = await fetch(url, {
+    method: editingId ? "PUT" : "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(form),
+  });
 
-    setSaving(false);
+  setSaving(false);
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(
-        typeof data.error === "string"
-          ? data.error
-          : "Check the form — something's not valid."
-      );
-      return;
-    }
-
-    cancelEdit();
-    loadEvents();
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    setError(typeof data.error === "string" ? data.error : "Check the form — something's not valid.");
+    return;
   }
 
-  async function handleDelete(id: number) {
-    if (!confirm("Delete this event? This can't be undone.")) return;
-    await fetch(`/api/admin/events/${id}`, { method: "DELETE" });
-    loadEvents();
-  }
+  cancelEdit();
+  setLoading(true);   // manual refetch — safe here, this is a click handler
+  loadEvents();
+}
+
+async function handleDelete(id: number) {
+  if (!confirm("Delete this event? This can't be undone.")) return;
+  await fetch(`/api/admin/events/${id}`, { method: "DELETE" });
+  setLoading(true);
+  loadEvents();
+}
 
   return (
     <div>

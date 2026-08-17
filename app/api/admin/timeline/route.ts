@@ -9,51 +9,43 @@ const timelineSchema = z.object({
   sortOrder: z.number().int().default(0),
 });
 
-const SELECT = `
-  SELECT id, year, title, description, sort_order AS sortOrder
-  FROM timeline_items
-`;
+type DbRow = Record<string, unknown> | unknown[];
+
+function toValues(row: DbRow): unknown[] {
+  return Array.isArray(row) ? row : Object.values(row);
+}
+
+function mapTimelineRow(row: DbRow) {
+  const v = toValues(row);
+  return {
+    id: Number(v[0]),
+    year: String(v[1] ?? ""),
+    title: String(v[2] ?? ""),
+    description: v[3] ? String(v[3]) : null,
+    sortOrder: Number(v[4] ?? 0),
+  };
+}
+
+const SELECT = `SELECT id, year, title, description, sort_order FROM timeline_items`;
 
 export async function GET() {
-  const result = await db.execute(
-    `${SELECT} ORDER BY sort_order ASC`
-  );
-
-  return NextResponse.json(result.rows);
+  const result = await db.execute(`${SELECT} ORDER BY sort_order ASC`);
+  return NextResponse.json(result.rows.map(mapTimelineRow));
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-
   const parsed = timelineSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.flatten() },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
   const { year, title, description, sortOrder } = parsed.data;
 
   const result = await db.execute({
-    sql: `
-      INSERT INTO timeline_items (
-        year,
-        title,
-        description,
-        sort_order,
-        created_at
-      )
-      VALUES (?, ?, ?, ?, ?)
-    `,
-    args: [
-      year,
-      title,
-      description || null,
-      sortOrder,
-      Date.now(),
-    ],
+    sql: `INSERT INTO timeline_items (year, title, description, sort_order, created_at) VALUES (?, ?, ?, ?, ?)`,
+    args: [year, title, description || null, sortOrder, Date.now()],
   });
 
   const rowResult = await db.execute({
@@ -61,7 +53,5 @@ export async function POST(req: NextRequest) {
     args: [Number(result.lastInsertRowid)],
   });
 
-  const row = rowResult.rows[0];
-
-  return NextResponse.json(row, { status: 201 });
+  return NextResponse.json(mapTimelineRow(rowResult.rows[0]), { status: 201 });
 }

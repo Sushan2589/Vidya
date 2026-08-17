@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Resource = {
   id: number;
@@ -20,16 +20,16 @@ export default function ResourcesPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  async function loadResources() {
-    setLoading(true);
-    const res = await fetch("/api/admin/resources");
-    setResources(await res.json());
-    setLoading(false);
-  }
+  const loadResources = useCallback(async () => {
+  const res = await fetch("/api/admin/resources");
+  setResources(await res.json());
+  setLoading(false);
+}, []);
 
-  useEffect(() => {
-    loadResources();
-  }, []);
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  loadResources();
+}, [loadResources]);
 
   function startEdit(resource: Resource) {
     setEditingId(resource.id);
@@ -75,14 +75,16 @@ export default function ResourcesPage() {
     }
 
     cancelEdit();
+    setLoading(true);
     loadResources();
   }
 
-  async function handleDelete(id: number) {
-    if (!confirm("Delete this resource? This can't be undone.")) return;
-    await fetch(`/api/admin/resources/${id}`, { method: "DELETE" });
-    loadResources();
-  }
+async function handleDelete(id: number) {
+  if (!confirm("Delete this resource? This can't be undone.")) return;
+  await fetch(`/api/admin/resources/${id}`, { method: "DELETE" });
+  setLoading(true);
+  loadResources();
+}
 
   return (
     <div>

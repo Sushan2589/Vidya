@@ -4,28 +4,22 @@ import db from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 async function countOf(table: string) {
-  const result = await db.execute(
-    `SELECT COUNT(*) AS count FROM ${table}`
-  );
-
+  const result = await db.execute(`SELECT COUNT(*) AS count FROM ${table}`);
   const row = result.rows[0];
-
   return Number(row?.count ?? 0);
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const [eventsCount, resourcesCount, timelineCount] = await Promise.all([
+    countOf("events"),
+    countOf("resources"),
+    countOf("timeline_items"),
+  ]);
+
   const cards = [
-    { label: "Events", count: countOf("events"), href: "/admin/events" },
-    {
-      label: "Resources",
-      count: countOf("resources"),
-      href: "/admin/resources",
-    },
-    {
-      label: "Timeline items",
-      count: countOf("timeline_items"),
-      href: "/admin/timeline",
-    },
+    { label: "Events", count: eventsCount, href: "/admin/events" },
+    { label: "Resources", count: resourcesCount, href: "/admin/resources" },
+    { label: "Timeline items", count: timelineCount, href: "/admin/timeline" },
   ];
 
   return (
@@ -44,9 +38,7 @@ export default function DashboardPage() {
             href={card.href}
             className="rounded-2xl border border-[#16324F]/10 bg-[#F3F1EA] p-6 transition-colors hover:border-[#C9A227]/50"
           >
-            <p className="text-4xl font-medium text-[#16324F]">
-              {card.count}
-            </p>
+            <p className="text-4xl font-medium text-[#16324F]">{card.count}</p>
             <p className="mt-1 text-sm font-medium uppercase tracking-wide text-[#16324F]/55">
               {card.label}
             </p>

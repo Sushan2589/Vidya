@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type TimelineItem = {
   id: number;
@@ -10,7 +10,7 @@ type TimelineItem = {
   sortOrder: number;
 };
 
-const EMPTY_FORM = { year: "", title: "", description: "", sortOrder: "0" };
+const EMPTY_FORM = { year: "", title: "", description: "", sortOrder: "" };
 
 export default function TimelinePage() {
   const [items, setItems] = useState<TimelineItem[]>([]);
@@ -20,16 +20,23 @@ export default function TimelinePage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  async function loadItems() {
-    setLoading(true);
-    const res = await fetch("/api/admin/timeline");
-    setItems(await res.json());
-    setLoading(false);
+  function nextSortOrder(list: TimelineItem[]) {
+    if (list.length === 0) return "0";
+    const max = Math.max(...list.map((i) => i.sortOrder));
+    return String(max + 1);
   }
 
-  useEffect(() => {
-    loadItems();
-  }, []);
+  const loadItems = useCallback(async () => {
+  const res = await fetch("/api/admin/timeline");
+  const data: TimelineItem[] = await res.json();
+  setItems(data);
+  setLoading(false);
+}, []);
+
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  loadItems();
+}, [loadItems]);
 
   function startEdit(item: TimelineItem) {
     setEditingId(item.id);
@@ -44,7 +51,7 @@ export default function TimelinePage() {
 
   function cancelEdit() {
     setEditingId(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, sortOrder: nextSortOrder(items) });
     setError(null);
   }
 
@@ -78,14 +85,16 @@ export default function TimelinePage() {
     }
 
     cancelEdit();
+     setLoading(true);
     loadItems();
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this timeline entry? This can't be undone.")) return;
-    await fetch(`/api/admin/timeline/${id}`, { method: "DELETE" });
-    loadItems();
-  }
+  if (!confirm("Delete this timeline entry? This can't be undone.")) return;
+  await fetch(`/api/admin/timeline/${id}`, { method: "DELETE" });
+  setLoading(true);
+  loadItems();
+}
 
   return (
     <div>
