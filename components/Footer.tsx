@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -14,7 +14,7 @@ const navLinks = [
 
 const contactDetails = [
   { icon: Mail, value: "hello@vidya.org.np", href: "mailto:hello@vidya.org.np" },
-  { icon: Phone, value: "+977 1-4XXXXXX", href: "tel:+97714000000" },
+  
   { icon: MapPin, value: "Kathmandu, Nepal", href: undefined },
 ];
 

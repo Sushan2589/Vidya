@@ -7,7 +7,7 @@ const About = () => {
     <div>
       <TeamSection />
 
-      <AboutTimeline />
+      
     </div>
   );
 };
