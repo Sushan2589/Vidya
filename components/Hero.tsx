@@ -5,6 +5,8 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
+
+
 const LAUREL_LEAVES = [
   { x: 0, y: 0, r: -8, s: 1 },
   { x: -14, y: 10, r: -18, s: 0.95 },
@@ -149,6 +151,8 @@ export function Hero() {
           Visionary Initiatives for Developing Youth Academics
         </motion.p>
 
+        
+
         <div className="relative flex flex-col items-center">
           {/* Laurel line art flanking the wordmark, mirroring the seal */}
           <svg
@@ -224,7 +228,7 @@ export function Hero() {
             Explore Olympiads
           </Link>
           <Link
-            href="/about"
+            href="#about"
             className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A227]/50 bg-[#C9A227]/10 px-5 py-2.5 text-sm font-medium tracking-wide text-[#16324F] transition-colors hover:border-[#C9A227] hover:bg-[#C9A227]/20"
           >
             Learn more

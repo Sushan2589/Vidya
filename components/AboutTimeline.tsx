@@ -44,7 +44,7 @@ function MilestonePhoto({
 }) {
   return (
     <div
-      className={`mb-3 h-36 w-full max-w-[220px] overflow-hidden rounded-lg border border-[#C9A227]/40 bg-[#16324F]/5 sm:mb-4 ${
+      className={`mb-3 h-55 w-full max-w-[220px] overflow-hidden rounded-lg border border-[#C9A227]/40 bg-[#16324F]/5 sm:mb-4 ${
         isRight ? "sm:ml-auto" : "sm:mr-auto"
       }`}
     >

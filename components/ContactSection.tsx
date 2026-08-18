@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { Mail, MapPin, Send, CheckCircle2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
+import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 
 const contactDetails = [
   {
@@ -16,6 +17,24 @@ const contactDetails = [
     icon: MapPin,
     value: "Kathmandu, Nepal",
     href: undefined,
+  },
+];
+
+const socialLinks = [
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/visionaryinitiativenepal/",
+    icon: FaInstagram,
+  },
+  {
+    name: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61575748772295",
+    icon: FaFacebookF,
+  },
+  {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/company/vidyanepal/",
+    icon: FaLinkedinIn,
   },
 ];
 
@@ -121,30 +140,53 @@ export function ContactSection() {
 
         {/* Contact details */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="relative mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-3"
+  initial={{ opacity: 0, y: 12 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.15 }}
+  className="relative mx-auto mt-10 flex max-w-2xl flex-col items-center gap-5"
+>
+  {/* Contact details */}
+  <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+    {contactDetails.map((detail) => {
+      const Icon = detail.icon;
+
+      const inner = (
+        <span className="flex items-center gap-2 text-sm text-[#16324F]/75 transition-colors hover:text-[#16324F]">
+          <Icon className="size-4 text-[#C9A227]" />
+          {detail.value}
+        </span>
+      );
+
+      return detail.href ? (
+        <a key={detail.value} href={detail.href}>
+          {inner}
+        </a>
+      ) : (
+        <span key={detail.value}>{inner}</span>
+      );
+    })}
+  </div>
+
+  {/* Socials */}
+  <div className="flex items-center gap-3">
+    {socialLinks.map((social) => {
+      const Icon = social.icon;
+
+      return (
+        <a
+          key={social.name}
+          href={social.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={social.name}
+          className="flex size-9 items-center justify-center rounded-full border border-[#16324F]/15 text-[#16324F]/60 transition-all hover:border-[#C9A227] hover:bg-[#C9A227]/10 hover:text-[#C9A227]"
         >
-          {contactDetails.map((detail) => {
-            const Icon = detail.icon;
-
-            const inner = (
-              <span className="flex items-center gap-2 text-sm text-[#16324F]/75 transition-colors hover:text-[#16324F]">
-                <Icon className="size-4 text-[#C9A227]" />
-                {detail.value}
-              </span>
-            );
-
-            return detail.href ? (
-              <a key={detail.value} href={detail.href}>
-                {inner}
-              </a>
-            ) : (
-              <span key={detail.value}>{inner}</span>
-            );
-          })}
-        </motion.div>
+          <Icon className="size-4" />
+        </a>
+      );
+    })}
+  </div>
+</motion.div>
       </div>
 
       {/* Form */}

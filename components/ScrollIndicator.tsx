@@ -15,7 +15,7 @@ export function ScrollIndicator() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.2, duration: 0.6 }}
-      className="group absolute inset-x-0 bottom-8 flex flex-col items-center gap-2 text-white/60 transition-colors hover:text-white/90"
+      className="group absolute inset-x-0 bottom-8 flex flex-col items-center gap-2 text-black/60 transition-colors hover:text-white/90"
       aria-label="Scroll to explore"
     >
       <span className="text-xs font-medium tracking-[0.25em] uppercase">

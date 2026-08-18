@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Mail, MapPin } from "lucide-react";
+import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -12,9 +13,31 @@ const navLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
+const socialLinks = [
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/visionaryinitiativenepal/",
+    icon: FaInstagram,
+  },
+  {
+    name: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61575748772295",
+    icon: FaFacebookF,
+  },
+  {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/company/vidyanepal/",
+    icon: FaLinkedinIn,
+  },
+];
+
 const contactDetails = [
-  { icon: Mail, value: "hello@vidya.org.np", href: "mailto:hello@vidya.org.np" },
-  
+  {
+    icon: Mail,
+    value: "visionaryinitiativenepal@gmail.com",
+    href: "mailto:visionaryinitiativenepal@gmail.com",
+  },
+
   { icon: MapPin, value: "Kathmandu, Nepal", href: undefined },
 ];
 
@@ -63,7 +86,11 @@ export function Footer() {
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: 0.5,
+              delay: 0.08,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-[#F3F1EA]/40">
               Navigate
@@ -87,7 +114,11 @@ export function Footer() {
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.5, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: 0.5,
+              delay: 0.16,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-[#F3F1EA]/40">
               Contact
@@ -108,6 +139,31 @@ export function Footer() {
                 );
               })}
             </ul>
+
+            <div className="mt-6">
+              <p className="mb-3 text-xs font-medium uppercase tracking-[0.25em] text-[#F3F1EA]/40">
+                Follow us
+              </p>
+
+              <div className="flex items-center gap-3">
+                {socialLinks.map((social) => {
+                  const Icon = social.icon;
+
+                  return (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.name}
+                      className="flex size-9 items-center justify-center rounded-full border border-[#F3F1EA]/15 text-[#F3F1EA]/60 transition-all hover:border-[#C9A227] hover:bg-[#C9A227]/10 hover:text-[#C9A227]"
+                    >
+                      <Icon className="size-4" />
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
           </motion.div>
         </div>
 

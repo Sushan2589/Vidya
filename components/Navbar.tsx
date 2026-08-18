@@ -4,6 +4,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import Image from 'next/image';
+import Vidya from "../public/assests/VIDYA.svg"
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -35,7 +37,7 @@ export function Navbar() {
            onClick={() => setOpen(false)}
           className="font-serif text-lg tracking-[0.15em] text-[#16324F] transition-colors hover:text-[#C9A227]"
         >
-          VIDYA
+          <Image src={Vidya} alt="Vidya logo" width={50} height={50} />
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
