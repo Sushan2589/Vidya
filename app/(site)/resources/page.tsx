@@ -1,15 +1,11 @@
-
-import { ResourcesSection } from '@/components/ResourcesSection'
-
-import React from 'react'
+import { ResourcesSection } from "@/components/ResourcesSection";
 
 const Resources = () => {
   return (
     <div>
-    
-      <ResourcesSection/>
+      <ResourcesSection />
     </div>
-  )
-}
+  );
+};
 
-export default Resources
+export default Resources;

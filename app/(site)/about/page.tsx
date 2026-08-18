@@ -1,17 +1,15 @@
-import React from 'react'
-import { AboutTimeline }  from '@/components/AboutTimeline'
+import { AboutTimeline } from "@/components/AboutTimeline";
 
-import { TeamSection } from '@/components/TeamSection'
+import { TeamSection } from "@/components/TeamSection";
 
 const About = () => {
   return (
     <div>
-        <TeamSection/>
-        
+      <TeamSection />
+
       <AboutTimeline />
-
     </div>
-  )
-}
+  );
+};
 
-export default About
+export default About;

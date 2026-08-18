@@ -1,20 +1,12 @@
-import React from 'react'
 
-
-import { OlympiadsSection } from '@/components/OlympiadsSection'
-
+import { OlympiadsSection } from "@/components/OlympiadsSection";
 
 const Olympiads = () => {
   return (
     <div>
-        
-        <OlympiadsSection/>
-     
-    
+      <OlympiadsSection />
     </div>
+  );
+};
 
-
-  )
-}
-
-export default Olympiads
+export default Olympiads;
