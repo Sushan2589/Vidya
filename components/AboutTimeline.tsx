@@ -30,6 +30,11 @@ function Medallion({ label, isLast }: { label: string; isLast: boolean }) {
   );
 }
 
+function getYear(date: string) {
+  const match = date.match(/\d{4}/);
+  return match ? match[0] : date;
+}
+
 function MilestonePhoto({
   image,
   isRight,
@@ -124,7 +129,7 @@ export function AboutTimeline() {
           </p>
         ) : (
           <ol className="flex flex-col gap-16 sm:gap-20">
-            {milestones.map((milestone, i) => {
+            {milestones.map((milestone, i) => {  // for newest first in timeline, replace this line with {[...milestones].reverse().map((milestone, i) => {   & change the NOW medallion to the first milestone instead of the last one.
               const isRight = i % 2 === 1;
               const isLast = i === milestones.length - 1;
 
@@ -139,7 +144,7 @@ export function AboutTimeline() {
                 >
                   <div className="col-start-1 row-start-1 sm:col-start-2 sm:justify-self-center">
                     <Medallion
-                      label={isLast ? "Now" : milestone.year}
+                      label={isLast ? "Now" : getYear(milestone.year)}
                       isLast={isLast}
                     />
                   </div>
