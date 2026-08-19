@@ -6,25 +6,60 @@ import { motion } from "motion/react";
 type TeamMember = {
   name: string;
   role: string;
-  bio: string;
+  
   image?: { src: string; alt: string };
 };
 
 const founders: TeamMember[] = [
   {
-    name: "Founder Name",
-    role: "Founder & Director",
-    bio: "One or two lines on their background and why they started VIDYA.",
+    name: "Shubham Shrestha",
+    role: "President",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/1.png?raw=true", alt: "Shubham Shrestha" }
   },
   {
-    name: "Founder Name",
-    role: "Co-Founder, Academics",
-    bio: "One or two lines on their background and what they lead.",
+    name: "Sulav Poudel",
+    role: "Vice President",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/2.png?raw=true", alt: "Sulav Poudel" }
   },
   {
-    name: "Founder Name",
-    role: "Co-Founder, Operations",
-    bio: "One or two lines on their background and what they lead.",
+    name: "Prakrish Acharya",
+    role: "Vice President",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/3.png?raw=true", alt: "Prakrish Acharya" }
+  },
+  {
+    name: "Aayush Marasini",
+    role: "Advisor",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/4.png?raw=true", alt: "Aayush Marasini" }
+  },
+  {
+    name: "Suhit Dhungana",
+    role: "Secretary",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/5.png?raw=true", alt: "Suhit Dhungana" }
+  },
+  {
+    name: "Prasiddha Thapa",
+    role: "Treasurer",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/6.png?raw=true", alt: "Prasiddha Thapa" }
+  },
+  {
+    name: "Saugat Kharel",
+    role: "Spokesperson",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/7.png?raw=true", alt: "Saugat Kharel" }
+  },
+  {
+    name: "Sangam Mudbhari",
+    role: "IT Head",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/8.png?raw=true", alt: "Sangam Mudbhari" }
+  },
+  {
+    name: "Piyush Pradhan",
+    role: "Public Relation Officer",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/9.png?raw=true", alt: "Piyush Pradhan" }
+  },
+  {
+    name: "Tushar Chimariya",
+    role: "Academic Counselor",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/10.png?raw=true", alt: "Tushar Chimariya" }
   },
 ];
 
@@ -52,37 +87,36 @@ export function TeamSection() {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="mx-auto mb-16 max-w-2xl text-center"
       >
-        <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
-          Know Your Team
-        </p>
+        
         <h2 className="font-serif text-4xl text-[#16324F] sm:text-5xl">
           The people behind VIDYA
         </h2>
       </motion.div>
 
-      <div className="mx-auto grid max-w-4xl gap-12 sm:grid-cols-3 sm:gap-8">
-        {founders.map((member, i) => (
-          <motion.div
-            key={member.name + i}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center"
-          >
-            <TeamPhoto image={member.image} alt="Photo" />
-            <h3 className="mb-1 font-serif text-lg font-bold text-[#16324F]">
-              {member.name}
-            </h3>
-            <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#C9A227]">
-              {member.role}
-            </p>
-            <p className="mx-auto max-w-[240px] text-sm leading-relaxed text-[#16324F]/70">
-              {member.bio}
-            </p>
-          </motion.div>
-        ))}
-      </div>
+      <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-8 gap-y-12">
+  {founders.map((member, i) => (
+    <motion.div
+      key={member.name + i}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.5 }}
+      transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full text-center sm:w-[calc(33.333%-1.5rem)]"
+    >
+      <TeamPhoto image={member.image} alt="Photo" />
+      <h3 className="mb-1 font-serif text-lg font-bold text-[#16324F]">
+        {member.name}
+      </h3>
+      <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-[#C9A227]">
+        {member.role}
+      </p>
+    </motion.div>
+  ))}
+</div>
+
+{/* <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
+          Know Your Team
+        </p>  */}
     </section>
   );
 }
