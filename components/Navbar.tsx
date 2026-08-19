@@ -10,7 +10,7 @@ import Vidya from "../public/assests/VIDYA.svg"
 const navItems = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
-  { name: "Olympiads", href: "/olympiads" },
+  { name: "Events", href: "/olympiads" },
   { name: "Resources", href: "/resources" },
   { name: "Contact", href: "/contact" },
 ];

@@ -8,7 +8,7 @@ import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
-  { name: "Olympiads", href: "/olympiads" },
+  { name: "Events", href: "/olympiads" },
   { name: "Resources", href: "/resources" },
   { name: "Contact", href: "/contact" },
 ];

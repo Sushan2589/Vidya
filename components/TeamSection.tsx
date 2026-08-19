@@ -21,11 +21,7 @@ const founders: TeamMember[] = [
     role: "Vice President",
     image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/2.png?raw=true", alt: "Sulav Poudel" }
   },
-  {
-    name: "Prakrish Acharya",
-    role: "Vice President",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/3.png?raw=true", alt: "Prakrish Acharya" }
-  },
+
   {
     name: "Aayush Marasini",
     role: "Advisor",
@@ -58,8 +54,13 @@ const founders: TeamMember[] = [
   },
   {
     name: "Tushar Chimariya",
-    role: "Academic Counselor",
+    role: "Human Resource Manager",
     image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/10.png?raw=true", alt: "Tushar Chimariya" }
+  },
+  {
+    name: "Prakrish Acharya",
+    role: "Human Resource Manager",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/10.png?raw=true", alt: "Prakrish Acharya" }
   },
 ];
 
@@ -89,11 +90,11 @@ export function TeamSection() {
       >
         
         <h2 className="font-serif text-4xl text-[#16324F] sm:text-5xl">
-          The people behind VIDYA
+          Founding Team
         </h2>
       </motion.div>
 
-      <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-8 gap-y-12">
+      <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-1 gap-y-8">
   {founders.map((member, i) => (
     <motion.div
       key={member.name + i}
