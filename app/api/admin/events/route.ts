@@ -44,44 +44,88 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const parsed = eventSchema.safeParse(body);
+  try {
+    const body = await req.json();
 
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
-  }
+    console.log("POST /api/admin/events body:", body);
 
-  const e = parsed.data;
+    const parsed = eventSchema.safeParse(body);
 
-  const base = slugify(e.title);
-  let slug = base;
-  let n = 1;
+    if (!parsed.success) {
+      console.error("Validation error:", parsed.error.flatten());
 
-  while (true) {
-    const result = await db.execute({
-      sql: `SELECT 1 FROM events WHERE slug = ? LIMIT 1`,
-      args: [slug],
+      return NextResponse.json(
+        { error: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const e = parsed.data;
+
+    const base = slugify(e.title);
+    let slug = base;
+    let n = 1;
+
+    while (true) {
+      const result = await db.execute({
+        sql: `SELECT 1 FROM events WHERE slug = ? LIMIT 1`,
+        args: [slug],
+      });
+
+      if (result.rows.length === 0) break;
+
+      slug = `${base}-${++n}`;
+    }
+
+    await db.execute({
+      sql: `
+        INSERT INTO events (
+          slug,
+          title,
+          subject,
+          level,
+          summary,
+          details,
+          eligibility,
+          syllabus,
+          held_in,
+          date,
+          location,
+          registration_link,
+          image_url,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+          datetime('now'),
+          datetime('now')
+        )
+      `,
+      args: [
+        slug,
+        e.title,
+        e.subject,
+        e.level,
+        e.summary,
+        e.details,
+        e.eligibility ?? "",
+        e.syllabus ?? "",
+        e.heldIn,
+        e.date ?? null,
+        e.location ?? null,
+        e.registrationLink || null,
+        e.imageUrl || null,
+      ],
     });
-    if (result.rows.length === 0) break;
-    slug = `${base}-${++n}`;
+
+    return NextResponse.json({ slug }, { status: 201 });
+  } catch (error) {
+    console.error("POST /api/admin/events error:", error);
+
+    return NextResponse.json(
+      { error: "Failed to create event" },
+      { status: 500 }
+    );
   }
-
-  await db.execute({
-    sql: `
-      INSERT INTO events (
-        slug, title, subject, level, summary, details,
-        eligibility, syllabus, held_in, date, location,
-        registration_link, image_url, created_at, updated_at
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-    `,
-    args: [
-      slug, e.title, e.subject, e.level, e.summary, e.details,
-      e.eligibility ?? "", e.syllabus ?? "", e.heldIn,
-      e.date ?? null, e.location ?? null, e.registrationLink || null,
-      e.imageUrl || null
-    ],
-  });
-
-  return NextResponse.json({ slug }, { status: 201 });
 }
