@@ -80,10 +80,11 @@ function AnimatedCounter({
 }
 
 function ElapsedTime() {
-  const START_DATE = new Date("2025-05-23T00:00:00+05:45");
+  const START_DATE = new Date("2025-04-01T00:00:00+05:45");
 
   const [elapsed, setElapsed] = React.useState({
     years: 0,
+    months: 0,
     days: 0,
     hours: 0,
     minutes: 0,
@@ -112,7 +113,28 @@ function ElapsedTime() {
         START_DATE.getDate(),
       );
 
-      const difference = now.getTime() - yearStart.getTime();
+      // Months elapsed since yearStart
+      let months =
+        (now.getFullYear() - yearStart.getFullYear()) * 12 +
+        (now.getMonth() - yearStart.getMonth());
+
+      const monthAnniversary = new Date(
+        yearStart.getFullYear(),
+        yearStart.getMonth() + months,
+        yearStart.getDate(),
+      );
+
+      if (now < monthAnniversary) {
+        months--;
+      }
+
+      const monthStart = new Date(
+        yearStart.getFullYear(),
+        yearStart.getMonth() + months,
+        yearStart.getDate(),
+      );
+
+      const difference = now.getTime() - monthStart.getTime();
 
       const totalSeconds = Math.floor(difference / 1000);
 
@@ -123,6 +145,7 @@ function ElapsedTime() {
 
       setElapsed({
         years,
+        months,
         days,
         hours,
         minutes,
@@ -143,6 +166,10 @@ function ElapsedTime() {
         {elapsed.years}{" "}
         <span className="text-lg sm:text-xl">
           {elapsed.years === 1 ? "Year" : "Years"}
+        </span>{" "}
+        {elapsed.months}{" "}
+        <span className="text-lg sm:text-xl">
+          {elapsed.months === 1 ? "Month" : "Months"}
         </span>
       </div>
 
