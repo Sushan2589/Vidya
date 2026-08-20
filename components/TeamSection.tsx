@@ -60,7 +60,7 @@ const founders: TeamMember[] = [
   {
     name: "Prakrish Acharya",
     role: "Human Resource Manager",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/2.png?raw=true", alt: "Prakrish Acharya" }
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/3.png?raw=true", alt: "Prakrish Acharya" }
   },
 ];
 
