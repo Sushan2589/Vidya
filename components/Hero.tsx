@@ -328,7 +328,7 @@ export function Hero() {
             href="/olympiads"
             className="inline-flex rounded-full border border-[#C9A227]/50 bg-[#16324F] px-7 py-2.5 text-sm font-medium tracking-wide text-[#F3F1EA] transition-colors hover:border-[#C9A227] hover:bg-[#1D3F63]"
           >
-            Explore Olympiads
+            Explore Events
           </Link>
           <Link
             href="#about"

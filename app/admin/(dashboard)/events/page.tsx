@@ -34,6 +34,9 @@ const EMPTY_FORM = {
   imageUrl: "",
 };
 
+// Fields that must be filled before saving.
+const REQUIRED_FIELDS = ["title", "registrationLink", "imageUrl", "date"] as const;
+
 const inputClass =
   "w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25";
 const labelClass =
@@ -49,6 +52,17 @@ function FieldError({ error }: { error?: string }) {
   );
 }
 
+function formatDate(dateStr: string) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,17 +72,16 @@ export default function EventsPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
-const loadEvents = useCallback(async () => {
-  const res = await fetch("/api/admin/events");
-  setEvents(await res.json());
-  setLoading(false);
-}, []);
+  const loadEvents = useCallback(async () => {
+    const res = await fetch("/api/admin/events");
+    setEvents(await res.json());
+    setLoading(false);
+  }, []);
 
-useEffect(() => {
-   // eslint-disable-next-line react-hooks/set-state-in-effect
-  loadEvents();
-}, [loadEvents]);
-
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadEvents();
+  }, [loadEvents]);
 
   function startEdit(event: Event) {
     setEditingId(event.id);
@@ -95,52 +108,53 @@ useEffect(() => {
     setError(null);
   }
 
-async function handleSubmit(e: React.FormEvent) {
-  e.preventDefault();
-  
-  setError(null);
-  const errors: Record<string, string> = {};
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
 
-  Object.entries(form).forEach(([field, value]) => {
-    if (!String(value).trim()) {
-      errors[field] = "This field is required.";
+    setError(null);
+    const errors: Record<string, string> = {};
+
+    REQUIRED_FIELDS.forEach((field) => {
+      if (!String(form[field]).trim()) {
+        errors[field] = "This field is required.";
+      }
+    });
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
     }
-  });
 
-  if (Object.keys(errors).length > 0) {
-    setFieldErrors(errors);
-    return;
+    setFieldErrors({});
+    setSaving(true);
+
+    const url = editingId ? `/api/admin/events/${editingId}` : "/api/admin/events";
+    const res = await fetch(url, {
+      method: editingId ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    setSaving(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      
+      setError(typeof data.error === "string" ? data.error : "Check the form — something's not valid.");
+      return;
+    }
+
+    cancelEdit();
+    setLoading(true); // manual refetch — safe here, this is a click handler
+    loadEvents();
   }
 
-  setFieldErrors({});
-  setSaving(true);
-
-  const url = editingId ? `/api/admin/events/${editingId}` : "/api/admin/events";
-  const res = await fetch(url, {
-    method: editingId ? "PUT" : "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(form),
-  });
-
-  setSaving(false);
-
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    setError(typeof data.error === "string" ? data.error : "Check the form — something's not valid.");
-    return;
+  async function handleDelete(id: number) {
+    if (!confirm("Delete this event? This can't be undone.")) return;
+    await fetch(`/api/admin/events/${id}`, { method: "DELETE" });
+    setLoading(true);
+    loadEvents();
   }
-
-  cancelEdit();
-  setLoading(true);   // manual refetch — safe here, this is a click handler
-  loadEvents();
-}
-
-async function handleDelete(id: number) {
-  if (!confirm("Delete this event? This can't be undone.")) return;
-  await fetch(`/api/admin/events/${id}`, { method: "DELETE" });
-  setLoading(true);
-  loadEvents();
-}
 
   return (
     <div>
@@ -156,17 +170,16 @@ async function handleDelete(id: number) {
         className="mt-8 grid max-w-3xl grid-cols-1 gap-4 rounded-2xl border border-[#16324F]/10 bg-[#F3F1EA] p-6 sm:grid-cols-2"
       >
         <div className="sm:col-span-2">
-          <label className={labelClass}>Title</label>
+          <label className={labelClass}>Title *</label>
           <input
-            required
             value={form.title}
             onChange={(e) => {
               setForm({ ...form, title: e.target.value });
               setFieldErrors({ ...fieldErrors, title: "" });
             }}
             className={`${inputClass} ${
-      fieldErrors.title ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+              fieldErrors.title ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+            }`}
             placeholder="International Mathematical Olympiad"
           />
           <FieldError error={fieldErrors.title} />
@@ -175,53 +188,32 @@ async function handleDelete(id: number) {
         <div>
           <label className={labelClass}>Subject</label>
           <input
-            required
             value={form.subject}
-            onChange={(e) => {
-              setForm({ ...form, subject: e.target.value });
-              setFieldErrors({ ...fieldErrors, subject: "" });
-            }}
-            className={`${inputClass} ${
-      fieldErrors.subject ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+            onChange={(e) => setForm({ ...form, subject: e.target.value })}
+            className={inputClass}
             placeholder="Mathematics"
           />
-          <FieldError error={fieldErrors.subject} />
         </div>
 
         <div>
           <label className={labelClass}>Level</label>
           <input
-            required
             value={form.level}
-            onChange={(e) => {
-              setForm({ ...form, level: e.target.value });
-              setFieldErrors({ ...fieldErrors, level: "" });
-            }}
-            className={`${inputClass} ${
-      fieldErrors.level ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+            onChange={(e) => setForm({ ...form, level: e.target.value })}
+            className={inputClass}
             placeholder="Grades 9–12"
           />
-          <FieldError error={fieldErrors.level} />
         </div>
 
         <div className="sm:col-span-2">
           <label className={labelClass}>Short summary (shown on the card)</label>
           <textarea
-            required
             rows={2}
             maxLength={200}
             value={form.summary}
-            onChange={(e) => {
-              setForm({ ...form, summary: e.target.value });
-              setFieldErrors({ ...fieldErrors, summary: "" });
-            }}
-            className={`${inputClass} ${
-      fieldErrors.summary ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+            onChange={(e) => setForm({ ...form, summary: e.target.value })}
+            className={inputClass}
           />
-          <FieldError error={fieldErrors.summary} />
         </div>
 
         <div className="sm:col-span-2">
@@ -229,18 +221,11 @@ async function handleDelete(id: number) {
             Full description (shown in detail view)
           </label>
           <textarea
-            required
             rows={5}
             value={form.details}
-            onChange={(e) => {
-              setForm({ ...form, details: e.target.value });
-              setFieldErrors({ ...fieldErrors, details: "" });
-            }}
-            className={`${inputClass} ${
-      fieldErrors.details ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+            onChange={(e) => setForm({ ...form, details: e.target.value })}
+            className={inputClass}
           />
-          <FieldError error={fieldErrors.details} />
         </div>
 
         <div>
@@ -250,20 +235,12 @@ async function handleDelete(id: number) {
           <textarea
             rows={4}
             value={form.eligibility}
-            onChange={(e) => {
-    setForm({ ...form, eligibility: e.target.value });
-    setFieldErrors({ ...fieldErrors, eligibility: "" });
-  }}
-            className={`${inputClass} ${
-    fieldErrors.eligibility
-      ? "border-red-400 focus:border-red-500 focus:ring-red-200"
-      : ""
-  }`}
+            onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
+            className={inputClass}
             placeholder={
               "Must be enrolled in grades 9–12\nNational olympiad qualification required"
             }
           />
-          <FieldError error={fieldErrors.eligibility} />
         </div>
 
         <div>
@@ -271,37 +248,24 @@ async function handleDelete(id: number) {
           <textarea
             rows={4}
             value={form.syllabus}
-            onChange={(e) => {
-              setForm({ ...form, syllabus: e.target.value });
-              setFieldErrors({ ...fieldErrors, syllabus: "" });
-            }}
-            className={`${inputClass} ${
-      fieldErrors.syllabus ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+            onChange={(e) => setForm({ ...form, syllabus: e.target.value })}
+            className={inputClass}
             placeholder={"Algebra\nCombinatorics\nGeometry\nNumber theory"}
           />
-          <FieldError error={fieldErrors.syllabus} />
         </div>
 
         <div>
           <label className={labelClass}>Held in (display text)</label>
           <input
-            required
             value={form.heldIn}
-            onChange={(e) => {
-              setForm({ ...form, heldIn: e.target.value });
-              setFieldErrors({ ...fieldErrors, heldIn: "" });
-            }}
-            className={`${inputClass} ${
-      fieldErrors.heldIn ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+            onChange={(e) => setForm({ ...form, heldIn: e.target.value })}
+            className={inputClass}
             placeholder="Held annually, July"
           />
-          <FieldError error={fieldErrors.heldIn} />
         </div>
 
         <div>
-          <label className={labelClass}>Exact date (optional)</label>
+          <label className={labelClass}>Exact date *</label>
           <input
             type="date"
             value={form.date}
@@ -310,8 +274,8 @@ async function handleDelete(id: number) {
               setFieldErrors({ ...fieldErrors, date: "" });
             }}
             className={`${inputClass} ${
-      fieldErrors.date ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+              fieldErrors.date ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+            }`}
           />
           <FieldError error={fieldErrors.date} />
         </div>
@@ -320,19 +284,13 @@ async function handleDelete(id: number) {
           <label className={labelClass}>Location</label>
           <input
             value={form.location}
-            onChange={(e) => {
-              setForm({ ...form, location: e.target.value });
-              setFieldErrors({ ...fieldErrors, location: "" });
-            }}
-            className={`${inputClass} ${
-      fieldErrors.location ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+            onChange={(e) => setForm({ ...form, location: e.target.value })}
+            className={inputClass}
           />
-          <FieldError error={fieldErrors.location} />
         </div>
 
         <div>
-          <label className={labelClass}>Image URL</label>
+          <label className={labelClass}>Image URL *</label>
           <input
             value={form.imageUrl}
             onChange={(e) => {
@@ -340,15 +298,15 @@ async function handleDelete(id: number) {
               setFieldErrors({ ...fieldErrors, imageUrl: "" });
             }}
             className={`${inputClass} ${
-      fieldErrors.imageUrl ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`}
+              fieldErrors.imageUrl ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+            }`}
             placeholder="https://..."
           />
           <FieldError error={fieldErrors.imageUrl} />
         </div>
 
         <div className="sm:col-span-2">
-          <label className={labelClass}>Registration link</label>
+          <label className={labelClass}>Registration link *</label>
           <input
             type="url"
             placeholder="https://"
@@ -358,8 +316,8 @@ async function handleDelete(id: number) {
               setFieldErrors({ ...fieldErrors, registrationLink: "" });
             }}
             className={`${inputClass} ${
-      fieldErrors.registrationLink ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-    }`} 
+              fieldErrors.registrationLink ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+            }`}
           />
           <FieldError error={fieldErrors.registrationLink} />
         </div>
@@ -405,9 +363,9 @@ async function handleDelete(id: number) {
                 <div>
                   <p className="font-medium text-[#16324F]">{event.title}</p>
                   <p className="mt-0.5 text-xs uppercase tracking-wide text-[#C9A227]">
-                    {event.subject} · {event.level}
-                    {event.heldIn ? ` · ${event.heldIn}` : ""}
-                    {event.location ? ` · ${event.location}` : ""}
+                    {[event.subject, event.level, formatDate(event.date), event.location]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
                   {event.summary && (
                     <p className="mt-2 text-sm text-[#16324F]/70">

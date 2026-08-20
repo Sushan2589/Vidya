@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Mail, MapPin } from "lucide-react";
@@ -74,7 +75,7 @@ export function Footer() {
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#F3F1EA]/55">
               Visionary Initiatives for Developing Youth Academics — helping
-              students in Nepal discover and prepare for academic olympiads.
+              students in Nepal discover various academic opportunities.
             </p>
             <p className="mt-4 text-xs font-medium uppercase tracking-[0.25em] text-[#C9A227]">
               Thinkers over Memorizers
@@ -150,7 +151,7 @@ export function Footer() {
                   const Icon = social.icon;
 
                   return (
-                    <a
+                    <a 
                       key={social.name}
                       href={social.href}
                       target="_blank"
@@ -171,6 +172,26 @@ export function Footer() {
         <div className="mt-14 flex flex-col items-center gap-3 border-t border-[#F3F1EA]/10 pt-6 text-xs text-[#F3F1EA]/40 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} VIDYA. All rights reserved.</p>
           <p>Made with care in Kathmandu, Nepal</p>
+        </div>
+
+        {/* Developer credit */}
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[#F3F1EA]/35">
+          <span>Built by</span>
+          
+           <a href="https://www.linkedin.com/in/sushan-dahal/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-[#F3F1EA]/55 transition-colors hover:text-[#C9A227]"
+          >
+            <Image
+              src="https://scontent.fktm1-1.fna.fbcdn.net/v/t39.30808-6/450086597_1999987847122901_1799870595011476058_n.jpg?stp=dst-jpg_tt6&cstp=mx1045x1039&ctp=s1045x1039&_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=JkE65l1utKoQ7kNvwGxnw2X&_nc_oc=AdrCD-vDCeetaqolTysbjiXhJhbejUzzxQi4JJdYuEOl4VLugoa_Q0ED3zX_v7GgxAw&_nc_zt=23&_nc_ht=scontent.fktm1-1.fna&_nc_gid=Bs61EGTDvVVm9yAVjUo4gQ&_nc_ss=7b2a8&oh=00_AQFfWyQErzWCbzi8sytgRkPW_N46idR4ihUDtSKnmwQ2Gg&oe=6A8C6B48"
+              alt="Sushan"
+              width={16}
+              height={16}
+              className="rounded-full border border-[#C9A227]/40"
+            />
+            Sushan
+          </a>
         </div>
       </div>
     </footer>

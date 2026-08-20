@@ -369,15 +369,12 @@ const [newsletterLoading, setNewsletterLoading] = useState(false);
           className="relative mx-auto max-w-2xl text-center"
         >
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
-            Olympiads
+            Events
           </p>
           <h1 className="font-serif text-4xl text-[#16324F] sm:text-5xl">
-            Know your olympiads
+            Know events across Nepal
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-[#16324F]/65 sm:text-base">
-            VIDYA doesn&apos;t host these olympiads — we help students in Nepal
-            discover them, understand eligibility, and know what to prepare for.
-          </p>
+          
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -456,12 +453,11 @@ const [newsletterLoading, setNewsletterLoading] = useState(false);
     </p>
 
     <h2 className="font-serif text-2xl font-semibold text-[#16324F] sm:text-3xl">
-      Get Olympiad details in your inbox
+      Stay in the Loop
     </h2>
 
     <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#16324F]/60">
-      Subscribe to get Olympiad details, eligibility information, and important
-      updates directly in your email.
+      Subscribe to get Our latest events, fun surprises, and yes Olympiad updates too. All in one email.
     </p>
 
     {!newsletterOpen ? (

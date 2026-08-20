@@ -86,6 +86,24 @@ export function TeamSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto mb-20 max-w-2xl text-center"
+      >
+        <p className="text-base leading-relaxed text-[#16324F]/70 sm:text-lg">
+          VIDYA is a youth-led nonprofit making academic
+          opportunities and Olympiads accessible to students across Nepal — through outreach,
+          mentorship, and a growing volunteer network.
+        </p>
+        <div className="mx-auto my-5 h-px w-16 bg-[#C9A227]/50" />
+        <p className="font-serif text-xl italic text-[#16324F] sm:text-2xl">
+          Vidya works to build a Nepal where every student has the confidence to explore,
+          challenge themselves, and grow.
+        </p>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="mx-auto mb-16 max-w-2xl text-center"
       >
         
@@ -118,6 +136,27 @@ export function TeamSection() {
 {/* <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
           Know Your Team
         </p>  */}
+
+            <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto mt-24 max-w-md text-center"
+      >
+        <h2 className="mb-6 font-serif text-4xl text-[#16324F] sm:text-5xl">
+          Current Team
+        </h2>
+        <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-[#C9A227]/40 bg-[#16324F]/5 px-8 py-12">
+          <span className="text-4xl">🔨</span>
+          <span className="text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
+            Under Construction
+          </span>
+          <p className="font-serif text-lg text-[#16324F]/70">
+            This section is being built. Check back soon.
+          </p>
+        </div>
+      </motion.div>
     </section>
   );
 }

@@ -1,28 +1,24 @@
-// ---------------------------------------------------------------------------
-// MERGE INTO: wherever your existing event zod schema lives
-// (e.g. lib/validations/event.ts, or inline in api/admin/events/route.ts)
-// ---------------------------------------------------------------------------
-
 import { z } from "zod";
 
-// eligibility / syllabus are authored in the admin form as one item per
-// line (like a plain textarea) and stored as newline-separated TEXT in
-// SQLite — no need for a JSON column or a join table for a handful of
-// bullet points per olympiad.
 export const eventSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  subject: z.string().min(1, "Subject is required"),
-  level: z.string().min(1, "Level is required"), // e.g. "Grades 9–12"
-  summary: z.string().min(1, "Short summary is required").max(200),
-  details: z.string().min(1, "Full description is required"),
+  subject: z.string().optional().default(""),
+  level: z.string().optional().default(""), // e.g. "Grades 9–12"
+  summary: z.string().max(200).optional().default(""),
+  details: z.string().optional().default(""),
   eligibility: z.string().optional().default(""), // newline-separated
   syllabus: z.string().optional().default(""), // newline-separated
-  heldIn: z.string().min(1, "e.g. 'Held annually, July'"),
-  date: z.string().optional(),
-  location: z.string().optional(),
-  registrationLink: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  imageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  sortOrder: z.coerce.number().int().optional().default(0),
+  heldIn: z.string().optional().default(""),
+  date: z.string().min(1, "Date is required"),
+  location: z.string().optional().default(""),
+  registrationLink: z.string().min(1, "Registration link is required").url("Must be a valid URL"),
+  imageUrl: z
+    .string()
+    .min(1, "Image is required")
+    .refine(
+      (val) => val.startsWith("data:image/") || /^https?:\/\//.test(val),
+      "Must be an image URL or an uploaded image"
+    ),
 });
 
 export type EventInput = z.infer<typeof eventSchema>;

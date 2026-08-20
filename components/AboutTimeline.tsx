@@ -112,7 +112,7 @@ export function AboutTimeline() {
           Our Story
         </p>
         <h2 className="font-serif text-4xl text-[#16324F] sm:text-5xl">
-          How VIDYA came to be
+          How VIDYA Came to Be
         </h2>
       </motion.div>
 
@@ -169,7 +169,7 @@ export function AboutTimeline() {
                       {milestone.title}
                     </h3>
                     {milestone.description && (
-                      <p className="break-words text-sm leading-relaxed text-[#16324F]/70 sm:text-base">
+                      <p className="break-words text-justify text-sm leading-relaxed text-[#16324F]/70 sm:text-base">
                         {milestone.description}
                       </p>
                     )}
