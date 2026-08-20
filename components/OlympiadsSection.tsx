@@ -43,6 +43,20 @@ const toLines = (text: string) =>
 // card that was clicked, instead of just fading in as a generic modal.
 // ---------------------------------------------------------------------------
 
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+
+  if (Number.isNaN(date.getTime())) return dateStr;
+
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 function OlympiadCard({
   olympiad,
   index,
@@ -121,7 +135,7 @@ function OlympiadCard({
           <div className="flex items-center justify-between border-t border-[#16324F]/10 pt-4">
             <span className="flex items-center gap-1.5 text-xs text-[#16324F]/55">
               <CalendarRange className="size-3.5" />
-              {olympiad.heldIn}
+              {formatDate(olympiad.date)}
             </span>
             <span className="flex items-center gap-1 text-xs font-medium text-[#16324F] transition-colors group-hover:text-[#C9A227]">
               View details
@@ -209,7 +223,7 @@ function OlympiadDetail({
           </h2>
           <p className="mb-6 flex items-center gap-1.5 text-sm text-[#16324F]/55">
             <CalendarRange className="size-4" />
-            {olympiad.heldIn}
+            {formatDate(olympiad.date)}
           </p>
 
           <p className="mb-8 max-w-2xl text-[15px] leading-relaxed text-[#16324F]/75">

@@ -68,7 +68,7 @@ function TeamPhoto({ image, alt }: { image?: TeamMember["image"]; alt: string })
   return (
     <div className="relative mx-auto mb-5 size-32 overflow-hidden rounded-full border-2 border-[#C9A227]/50 bg-[#16324F]/5 sm:size-36">
       {image ? (
-        <Image src={image.src} alt={image.alt} fill className="object-cover" />
+        <Image src={image.src} alt={image.alt} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
       ) : (
         <div className="flex size-full items-center justify-center text-[10px] uppercase tracking-widest text-[#16324F]/35">
           {alt}
