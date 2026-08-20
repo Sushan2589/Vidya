@@ -7,7 +7,7 @@ const timelineSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
-  sortOrder: z.number().int().default(0),
+  
 });
 
 type DbRow = Record<string, unknown> | unknown[];
@@ -43,11 +43,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { year, title, description, imageUrl, sortOrder } = parsed.data;
+  const { year, title, description, imageUrl } = parsed.data;
+
+  const maxResult = await db.execute(
+    `SELECT COALESCE(MAX(sort_order), 0) as max_order FROM timeline_items`
+  );
+  const nextOrder = Number(maxResult.rows[0][0] ?? 0) + 1;
 
   const result = await db.execute({
     sql: `INSERT INTO timeline_items (year, title, description, image_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
-    args: [year, title, description || null, imageUrl || null,   sortOrder, Date.now()],
+    args: [year, title, description || null, imageUrl || null, nextOrder, Date.now()],
   });
 
   const rowResult = await db.execute({

@@ -1,6 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 
 type TimelineItem = {
   id: number;
@@ -19,6 +35,68 @@ const EMPTY_FORM = {
   sortOrder: "",
 };
 
+function SortableTimelineRow({
+  item,
+  onEdit,
+  onDelete,
+}: {
+  item: TimelineItem;
+  onEdit: (item: TimelineItem) => void;
+  onDelete: (id: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition ?? undefined,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="flex items-start justify-between gap-4 rounded-2xl border border-[#16324F]/10 bg-[#F3F1EA] p-5"
+    >
+      <div className="flex items-start gap-3">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="mt-1 cursor-grab text-[#16324F]/40 hover:text-[#16324F] active:cursor-grabbing"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical size={18} />
+        </button>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-[#C9A227]">
+            {item.year} · order {item.sortOrder}
+          </p>
+          <p className="mt-1 font-medium text-[#16324F]">{item.title}</p>
+          {item.description && (
+            <p className="mt-2 text-sm text-[#16324F]/70">{item.description}</p>
+          )}
+        </div>
+      </div>
+      <div className="flex shrink-0 gap-2">
+        <button
+          onClick={() => onEdit(item)}
+          className="rounded-full border border-[#16324F]/20 px-4 py-1.5 text-xs font-medium text-[#16324F]/70 hover:bg-[#16324F]/5"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => onDelete(item.id)}
+          className="rounded-full border border-red-200 px-4 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+        >
+          Delete
+        </button>
+      </div>
+    </li>
+  );
+}
+
 export default function TimelinePage() {
   const [items, setItems] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +104,11 @@ export default function TimelinePage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [reorderError, setReorderError] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
 
   function nextSortOrder(list: TimelineItem[]) {
     if (list.length === 0) return "0";
@@ -36,7 +119,8 @@ export default function TimelinePage() {
   const loadItems = useCallback(async () => {
     const res = await fetch("/api/admin/timeline");
     const data: TimelineItem[] = await res.json();
-    setItems(data);
+    // ensure it's sorted by sortOrder for the drag list to make sense
+    setItems([...data].sort((a, b) => a.sortOrder - b.sortOrder));
     setLoading(false);
   }, []);
 
@@ -77,8 +161,8 @@ export default function TimelinePage() {
       body: JSON.stringify({
         ...form,
         sortOrder: editingId
-          ? Number(form.sortOrder) || 0 // keep existing order when editing
-          : Number(nextSortOrder(items)), // auto next-order when adding
+          ? Number(form.sortOrder) || 0
+          : Number(nextSortOrder(items)),
       }),
     });
 
@@ -106,13 +190,39 @@ export default function TimelinePage() {
     loadItems();
   }
 
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = items.findIndex((i) => i.id === active.id);
+    const newIndex = items.findIndex((i) => i.id === over.id);
+    const reordered = arrayMove(items, oldIndex, newIndex);
+
+    const previousItems = items;
+    // optimistic update, with sortOrder values renumbered locally too
+    setItems(reordered.map((item, index) => ({ ...item, sortOrder: index + 1 })));
+    setReorderError(null);
+
+    try {
+      const res = await fetch("/api/admin/timeline/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: reordered.map((i) => i.id) }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+    } catch {
+      setReorderError("Couldn't save the new order — reverting.");
+      setItems(previousItems);
+    }
+  }
+
   return (
     <div>
       <h1 className="font-serif text-3xl font-medium text-[#16324F]">
         Timeline
       </h1>
       <p className="mt-1 text-sm text-[#16324F]/60">
-        Milestones shown on the About page. Lower order number shows first.
+        Milestones shown on the About page. Drag entries below to reorder.
       </p>
 
       <form
@@ -137,7 +247,7 @@ export default function TimelinePage() {
             Order
           </label>
           <div className="w-full rounded-lg border border-[#16324F]/10 bg-[#16324F]/5 px-3.5 py-2.5 text-sm text-[#16324F]/50">
-            Automatic — added at the end
+            {editingId ? "Drag in the list below to change" : "Automatic — added at the end"}
           </div>
         </div>
 
@@ -209,42 +319,34 @@ export default function TimelinePage() {
         ) : items.length === 0 ? (
           <p className="text-sm text-[#16324F]/60">No timeline entries yet.</p>
         ) : (
-          <ul className="flex flex-col gap-3">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-start justify-between gap-4 rounded-2xl border border-[#16324F]/10 bg-[#F3F1EA] p-5"
+          <>
+            {reorderError && (
+              <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                {reorderError}
+              </p>
+            )}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={items.map((i) => i.id)}
+                strategy={verticalListSortingStrategy}
               >
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-[#C9A227]">
-                    {item.year} · order {item.sortOrder}
-                  </p>
-                  <p className="mt-1 font-medium text-[#16324F]">
-                    {item.title}
-                  </p>
-                  {item.description && (
-                    <p className="mt-2 text-sm text-[#16324F]/70">
-                      {item.description}
-                    </p>
-                  )}
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    onClick={() => startEdit(item)}
-                    className="rounded-full border border-[#16324F]/20 px-4 py-1.5 text-xs font-medium text-[#16324F]/70 hover:bg-[#16324F]/5"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="rounded-full border border-red-200 px-4 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                <ul className="flex flex-col gap-3">
+                  {items.map((item) => (
+                    <SortableTimelineRow
+                      key={item.id}
+                      item={item}
+                      onEdit={startEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </ul>
+              </SortableContext>
+            </DndContext>
+          </>
         )}
       </div>
     </div>
