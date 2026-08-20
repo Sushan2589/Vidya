@@ -83,7 +83,7 @@ export async function PUT(
         location = ?,
         registration_link = ?,
         image_url = ?,
-        sort_order = ?
+        
       WHERE id = ?
     `,
     args: [
@@ -100,7 +100,6 @@ export async function PUT(
       e.location ?? null,
       e.registrationLink || null,
       e.imageUrl || null,
-      e.sortOrder ?? 0,
       eventId,
     ],
   });

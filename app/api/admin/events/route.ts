@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO events (
         slug, title, subject, level, summary, details,
         eligibility, syllabus, held_in, date, location,
-        registration_link, image_url, sort_order, created_at, updated_at
+        registration_link, image_url, created_at, updated_at
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `,
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       slug, e.title, e.subject, e.level, e.summary, e.details,
       e.eligibility ?? "", e.syllabus ?? "", e.heldIn,
       e.date ?? null, e.location ?? null, e.registrationLink || null,
-      e.imageUrl || null, e.sortOrder ?? 0,
+      e.imageUrl || null
     ],
   });
 
