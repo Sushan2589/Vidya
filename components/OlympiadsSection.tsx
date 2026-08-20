@@ -26,6 +26,7 @@ type Olympiad = {
   eligibility: string; // newline-separated
   syllabus: string; // newline-separated
   heldIn: string;
+  date: string | null;
   registrationLink: string | null;
   imageUrl: string | null;
 };
@@ -51,12 +52,20 @@ function OlympiadCard({
   index: number;
   onOpen: (slug: string) => void;
 }) {
+  const isEnded =
+    olympiad.date !== null &&
+    new Date(olympiad.date) < new Date();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.4 }}
-      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      transition={{
+        duration: 0.5,
+        delay: index * 0.08,
+        ease: [0.22, 1, 0.36, 1],
+      }}
       layoutId={`card-${olympiad.slug}`}
     >
       <button
@@ -81,9 +90,21 @@ function OlympiadCard({
               </div>
             </div>
           )}
-          <span className="absolute left-3 top-3 rounded-full border border-[#C9A227]/40 bg-[#FBFAF5]/90 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-[#16324F] backdrop-blur-sm">
-            {olympiad.subject}
-          </span>
+          <div className="absolute left-3 top-3 flex gap-2">
+            <span className="rounded-full border border-[#C9A227]/40 bg-[#FBFAF5]/90 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-[#16324F] backdrop-blur-sm">
+              {olympiad.subject}
+            </span>
+
+            <span
+              className={
+                isEnded
+                  ? "rounded-full bg-[#16324F]/80 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-[#F3F1EA] backdrop-blur-sm"
+                  : "rounded-full border border-[#C9A227]/40 bg-[#FBFAF5]/90 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-[#16324F] backdrop-blur-sm"
+              }
+            >
+              {isEnded ? "Ended" : "Coming Soon"}
+            </span>
+          </div>
         </motion.div>
 
         <div className="flex flex-1 flex-col p-6">
@@ -262,6 +283,10 @@ export function OlympiadsSection() {
   const [olympiads, setOlympiads] = useState<Olympiad[]>([]);
   const [loading, setLoading] = useState(true);
   const [openSlug, setOpenSlug] = useState<string | null>(null);
+  const [newsletterOpen, setNewsletterOpen] = useState(false);
+const [email, setEmail] = useState("");
+const [newsletterStatus, setNewsletterStatus] = useState("");
+const [newsletterLoading, setNewsletterLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/events")
@@ -279,6 +304,51 @@ export function OlympiadsSection() {
   }, [openSlug]);
 
   const openOlympiad = olympiads.find((o) => o.slug === openSlug) ?? null;
+  const now = new Date();
+
+  const upcomingOlympiads = olympiads
+    .filter((o) => o.date && new Date(o.date) >= now)
+    .sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime());
+
+  const endedOlympiads = olympiads
+    .filter((o) => o.date && new Date(o.date) < now)
+    .sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime());
+
+  const undatedOlympiads = olympiads.filter((o) => !o.date);
+
+  async function handleNewsletterSubmit(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (!email.trim()) return;
+
+  setNewsletterLoading(true);
+  setNewsletterStatus("");
+
+  try {
+    const res = await fetch("/api/newsletter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email.trim() }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Something went wrong");
+    }
+
+    setNewsletterStatus("You're subscribed!");
+    setEmail("");
+  } catch (error) {
+    setNewsletterStatus(
+      error instanceof Error ? error.message : "Something went wrong."
+    );
+  } finally {
+    setNewsletterLoading(false);
+  }
+}
 
   return (
     <section className="relative overflow-hidden bg-[#ddddd6]">
@@ -319,7 +389,11 @@ export function OlympiadsSection() {
             </span>
             <motion.span
               animate={{ y: [0, 5, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              transition={{
+                duration: 1.6,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
             >
               <ChevronDown className="size-4" />
             </motion.span>
@@ -340,20 +414,95 @@ export function OlympiadsSection() {
           </div>
         ) : olympiads.length === 0 ? (
           <p className="text-center text-sm text-[#16324F]/55">
-            Olympiads will appear here once they&apos;re added in the admin panel.
+            Olympiads will appear here once they&apos;re added in the admin
+            panel.
           </p>
         ) : (
-          <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {olympiads.map((o, i) => (
-              <OlympiadCard
-                key={o.slug}
-                olympiad={o}
-                index={i}
-                onOpen={setOpenSlug}
-              />
-            ))}
-          </div>
+ <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {upcomingOlympiads.map((o, i) => (
+    <OlympiadCard
+      key={o.slug}
+      olympiad={o}
+      index={i}
+      onOpen={setOpenSlug}
+    />
+  ))}
+
+  {endedOlympiads.map((o, i) => (
+    <OlympiadCard
+      key={o.slug}
+      olympiad={o}
+      index={i + upcomingOlympiads.length}
+      onOpen={setOpenSlug}
+    />
+  ))}
+
+  {undatedOlympiads.map((o, i) => (
+    <OlympiadCard
+      key={o.slug}
+      olympiad={o}
+      index={i + upcomingOlympiads.length + endedOlympiads.length}
+      onOpen={setOpenSlug}
+    />
+  ))}
+</div>
         )}
+
+        {/* Newsletter */}
+<div className="mx-auto mt-20 max-w-3xl px-6 text-center">
+  <div className="rounded-2xl border border-[#16324F]/10 bg-[#FBFAF5] px-6 py-10 shadow-[0_4px_20px_rgba(22,50,79,0.05)] sm:px-10">
+    <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-[#C9A227]">
+      Stay Updated
+    </p>
+
+    <h2 className="font-serif text-2xl font-semibold text-[#16324F] sm:text-3xl">
+      Get Olympiad details in your inbox
+    </h2>
+
+    <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#16324F]/60">
+      Subscribe to get Olympiad details, eligibility information, and important
+      updates directly in your email.
+    </p>
+
+    {!newsletterOpen ? (
+      <button
+        type="button"
+        onClick={() => setNewsletterOpen(true)}
+        className="mt-7 rounded-full bg-[#16324F] px-6 py-3 text-sm font-medium text-[#F3F1EA] transition-colors hover:bg-[#1D3F63]"
+      >
+        Subscribe to newsletter
+      </button>
+    ) : (
+      <form
+        onSubmit={handleNewsletterSubmit}
+        className="mx-auto mt-7 flex max-w-md flex-col gap-3 sm:flex-row"
+      >
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          className="min-w-0 flex-1 rounded-full border border-[#16324F]/15 bg-white px-5 py-3 text-sm text-[#16324F] outline-none placeholder:text-[#16324F]/35 focus:border-[#C9A227]"
+        />
+
+        <button
+          type="submit"
+          disabled={newsletterLoading}
+          className="rounded-full bg-[#16324F] px-6 py-3 text-sm font-medium text-[#F3F1EA] transition-colors hover:bg-[#1D3F63] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {newsletterLoading ? "Saving..." : "Subscribe"}
+        </button>
+      </form>
+    )}
+
+    {newsletterStatus && (
+      <p className="mt-4 text-sm text-[#16324F]/65">
+        {newsletterStatus}
+      </p>
+    )}
+  </div>
+</div>
       </div>
 
       <AnimatePresence>

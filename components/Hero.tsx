@@ -5,8 +5,6 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
-
-
 const LAUREL_LEAVES = [
   { x: 0, y: 0, r: -8, s: 1 },
   { x: -14, y: 10, r: -18, s: 0.95 },
@@ -81,6 +79,86 @@ function AnimatedCounter({
   );
 }
 
+function ElapsedTime() {
+  const START_DATE = new Date("2025-05-23T00:00:00+05:45");
+
+  const [elapsed, setElapsed] = React.useState({
+    years: 0,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  React.useEffect(() => {
+    const updateElapsed = () => {
+      const now = new Date();
+
+      let years = now.getFullYear() - START_DATE.getFullYear();
+
+      const anniversary = new Date(
+        START_DATE.getFullYear() + years,
+        START_DATE.getMonth(),
+        START_DATE.getDate(),
+      );
+
+      if (now < anniversary) {
+        years--;
+      }
+
+      const yearStart = new Date(
+        START_DATE.getFullYear() + years,
+        START_DATE.getMonth(),
+        START_DATE.getDate(),
+      );
+
+      const difference = now.getTime() - yearStart.getTime();
+
+      const totalSeconds = Math.floor(difference / 1000);
+
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setElapsed({
+        years,
+        days,
+        hours,
+        minutes,
+        seconds,
+      });
+    };
+
+    updateElapsed();
+
+    const interval = setInterval(updateElapsed, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
+      <div className="font-serif text-2xl font-medium tracking-tight text-[#16324F] sm:text-3xl">
+        {elapsed.years}{" "}
+        <span className="text-lg sm:text-xl">
+          {elapsed.years === 1 ? "Year" : "Years"}
+        </span>
+      </div>
+
+      <div className="mt-1 text-xs font-medium text-[#16324F]/55">
+        {elapsed.days}d · {String(elapsed.hours).padStart(2, "0")}h ·{" "}
+        {String(elapsed.minutes).padStart(2, "0")}m ·{" "}
+        {String(elapsed.seconds).padStart(2, "0")}s
+      </div>
+
+      <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
+        Years Active
+      </p>
+    </div>
+  );
+}
+
 export function Hero() {
   return (
     <section className="relative flex min-h-svh items-center justify-center overflow-hidden bg-[#ddddd6]">
@@ -146,12 +224,10 @@ export function Hero() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.25 }}
-          className="mb-6 max-w-md text-[11px] font-medium uppercase tracking-[0.28em] text-[#16324F]/55 sm:text-xs"
+          className="mb-6 mt-15 max-w-md text-[11px] font-medium uppercase tracking-[0.28em] text-[#16324F]/55 sm:text-xs"
         >
           Visionary Initiatives for Developing Youth Academics
         </motion.p>
-
-        
 
         <div className="relative flex flex-col items-center">
           {/* Laurel line art flanking the wordmark, mirroring the seal */}
@@ -265,16 +341,8 @@ export function Hero() {
             </p>
           </div>
 
-          {/* Years */}
-          <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
-            <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={2} />
-              <span>+</span>
-            </div>
-            <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
-              Years Active
-            </p>
-          </div>
+          {/* Years Active */}
+          <ElapsedTime />
 
           {/* Volunteers */}
           <div className="flex flex-col items-center px-4">

@@ -39,12 +39,23 @@ const inputClass =
 const labelClass =
   "mb-1.5 block text-xs font-medium uppercase tracking-wide text-[#16324F]/70";
 
+function FieldError({ error }: { error?: string }) {
+  if (!error) return null;
+
+  return (
+    <p className="mt-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs text-red-600">
+      ⚠ {error}
+    </p>
+  );
+}
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
 const loadEvents = useCallback(async () => {
@@ -86,8 +97,23 @@ useEffect(() => {
 
 async function handleSubmit(e: React.FormEvent) {
   e.preventDefault();
-  setSaving(true);
+  
   setError(null);
+  const errors: Record<string, string> = {};
+
+  Object.entries(form).forEach(([field, value]) => {
+    if (!String(value).trim()) {
+      errors[field] = "This field is required.";
+    }
+  });
+
+  if (Object.keys(errors).length > 0) {
+    setFieldErrors(errors);
+    return;
+  }
+
+  setFieldErrors({});
+  setSaving(true);
 
   const url = editingId ? `/api/admin/events/${editingId}` : "/api/admin/events";
   const res = await fetch(url, {
@@ -134,10 +160,16 @@ async function handleDelete(id: number) {
           <input
             required
             value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, title: e.target.value });
+              setFieldErrors({ ...fieldErrors, title: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.title ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
             placeholder="International Mathematical Olympiad"
           />
+          <FieldError error={fieldErrors.title} />
         </div>
 
         <div>
@@ -145,10 +177,16 @@ async function handleDelete(id: number) {
           <input
             required
             value={form.subject}
-            onChange={(e) => setForm({ ...form, subject: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, subject: e.target.value });
+              setFieldErrors({ ...fieldErrors, subject: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.subject ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
             placeholder="Mathematics"
           />
+          <FieldError error={fieldErrors.subject} />
         </div>
 
         <div>
@@ -156,10 +194,16 @@ async function handleDelete(id: number) {
           <input
             required
             value={form.level}
-            onChange={(e) => setForm({ ...form, level: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, level: e.target.value });
+              setFieldErrors({ ...fieldErrors, level: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.level ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
             placeholder="Grades 9–12"
           />
+          <FieldError error={fieldErrors.level} />
         </div>
 
         <div className="sm:col-span-2">
@@ -169,9 +213,15 @@ async function handleDelete(id: number) {
             rows={2}
             maxLength={200}
             value={form.summary}
-            onChange={(e) => setForm({ ...form, summary: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, summary: e.target.value });
+              setFieldErrors({ ...fieldErrors, summary: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.summary ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
           />
+          <FieldError error={fieldErrors.summary} />
         </div>
 
         <div className="sm:col-span-2">
@@ -182,9 +232,15 @@ async function handleDelete(id: number) {
             required
             rows={5}
             value={form.details}
-            onChange={(e) => setForm({ ...form, details: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, details: e.target.value });
+              setFieldErrors({ ...fieldErrors, details: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.details ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
           />
+          <FieldError error={fieldErrors.details} />
         </div>
 
         <div>
@@ -194,14 +250,20 @@ async function handleDelete(id: number) {
           <textarea
             rows={4}
             value={form.eligibility}
-            onChange={(e) =>
-              setForm({ ...form, eligibility: e.target.value })
-            }
-            className={inputClass}
+            onChange={(e) => {
+    setForm({ ...form, eligibility: e.target.value });
+    setFieldErrors({ ...fieldErrors, eligibility: "" });
+  }}
+            className={`${inputClass} ${
+    fieldErrors.eligibility
+      ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+      : ""
+  }`}
             placeholder={
               "Must be enrolled in grades 9–12\nNational olympiad qualification required"
             }
           />
+          <FieldError error={fieldErrors.eligibility} />
         </div>
 
         <div>
@@ -209,10 +271,16 @@ async function handleDelete(id: number) {
           <textarea
             rows={4}
             value={form.syllabus}
-            onChange={(e) => setForm({ ...form, syllabus: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, syllabus: e.target.value });
+              setFieldErrors({ ...fieldErrors, syllabus: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.syllabus ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
             placeholder={"Algebra\nCombinatorics\nGeometry\nNumber theory"}
           />
+          <FieldError error={fieldErrors.syllabus} />
         </div>
 
         <div>
@@ -220,10 +288,16 @@ async function handleDelete(id: number) {
           <input
             required
             value={form.heldIn}
-            onChange={(e) => setForm({ ...form, heldIn: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, heldIn: e.target.value });
+              setFieldErrors({ ...fieldErrors, heldIn: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.heldIn ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
             placeholder="Held annually, July"
           />
+          <FieldError error={fieldErrors.heldIn} />
         </div>
 
         <div>
@@ -231,28 +305,46 @@ async function handleDelete(id: number) {
           <input
             type="date"
             value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, date: e.target.value });
+              setFieldErrors({ ...fieldErrors, date: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.date ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
           />
+          <FieldError error={fieldErrors.date} />
         </div>
 
         <div>
           <label className={labelClass}>Location</label>
           <input
             value={form.location}
-            onChange={(e) => setForm({ ...form, location: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, location: e.target.value });
+              setFieldErrors({ ...fieldErrors, location: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.location ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
           />
+          <FieldError error={fieldErrors.location} />
         </div>
 
         <div>
           <label className={labelClass}>Image URL</label>
           <input
             value={form.imageUrl}
-            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, imageUrl: e.target.value });
+              setFieldErrors({ ...fieldErrors, imageUrl: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.imageUrl ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`}
             placeholder="https://..."
           />
+          <FieldError error={fieldErrors.imageUrl} />
         </div>
 
         <div className="sm:col-span-2">
@@ -261,11 +353,15 @@ async function handleDelete(id: number) {
             type="url"
             placeholder="https://"
             value={form.registrationLink}
-            onChange={(e) =>
-              setForm({ ...form, registrationLink: e.target.value })
-            }
-            className={inputClass}
+            onChange={(e) => {
+              setForm({ ...form, registrationLink: e.target.value });
+              setFieldErrors({ ...fieldErrors, registrationLink: "" });
+            }}
+            className={`${inputClass} ${
+      fieldErrors.registrationLink ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
+    }`} 
           />
+          <FieldError error={fieldErrors.registrationLink} />
         </div>
 
         {error && (

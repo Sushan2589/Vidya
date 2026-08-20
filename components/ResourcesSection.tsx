@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { FileText, Download, BookOpen, ClipboardList, Link2 } from "lucide-react";
+import {
+  FileText,
+  Download,
+  BookOpen,
+  ClipboardList,
+  Link2,
+  X,
+} from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Types — mirrors the row shape returned by GET /api/resources
@@ -46,6 +53,9 @@ export function ResourcesSection() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<string>("All");
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(
+    null,
+  );
 
   useEffect(() => {
     fetch("/api/resources")
@@ -90,7 +100,8 @@ export function ResourcesSection() {
             Materials to help you prepare
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-[#16324F]/65 sm:text-base">
-            Study guides, past papers, and practice sets to help you get ready for an olympiad.
+            Study guides, past papers, and practice sets to help you get ready
+            for an olympiad.
           </p>
         </motion.div>
       </div>
@@ -111,14 +122,20 @@ export function ResourcesSection() {
                   key={cat}
                   onClick={() => setActive(cat)}
                   className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                    active === cat ? "text-[#FBFAF5]" : "text-[#16324F]/60 hover:text-[#16324F]"
+                    active === cat
+                      ? "text-[#FBFAF5]"
+                      : "text-[#16324F]/60 hover:text-[#16324F]"
                   }`}
                 >
                   {active === cat && (
                     <motion.span
                       layoutId="resource-tab"
                       className="absolute inset-0 rounded-full bg-[#16324F]"
-                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 32,
+                      }}
                     />
                   )}
                   <span className="relative">{cat}</span>
@@ -138,51 +155,65 @@ export function ResourcesSection() {
             </div>
           ) : resources.length === 0 ? (
             <p className="text-center text-sm text-[#16324F]/55">
-              Resources will appear here once they&apos;re added in the admin panel.
+              Resources will appear here once they&apos;re added in the admin
+              panel.
             </p>
           ) : (
-            <motion.div layout className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <motion.div
+              layout
+              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            >
               <AnimatePresence mode="popLayout">
                 {filtered.map((r) => {
                   const category = r.category || "Uncategorized";
                   const Icon = iconFor(category);
                   return (
-                    <motion.a
+                    <motion.button
                       key={r.id}
-                      href={r.fileUrl}
-                      target="_blank"
-                      rel="noreferrer"
+                      type="button"
                       layout
+                      layoutId={`resource-card-${r.id}`}
                       initial={{ opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      className="group flex items-start gap-4 rounded-xl border border-[#16324F]/10 bg-[#FBFAF5] p-5 transition-colors hover:border-[#C9A227]/50"
+                      transition={{
+                        duration: 0.3,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      onClick={() => setSelectedResource(r)}
+                      className="group flex w-full items-start gap-4 rounded-xl border border-[#16324F]/10 bg-[#FBFAF5] p-5 text-left transition-colors hover:border-[#C9A227]/50"
                     >
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#16324F]/5 text-[#16324F] transition-colors group-hover:bg-[#C9A227]/15 group-hover:text-[#C9A227]">
                         <Icon className="size-4.5" />
                       </div>
+
                       <div className="min-w-0 flex-1">
                         <p className="mb-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#C9A227]">
                           {category}
                         </p>
+
                         <h3 className="mb-1 break-words font-serif text-base font-bold text-[#16324F]">
                           {r.title}
                         </h3>
+
                         {r.description && (
                           <p className="mb-1 line-clamp-2 text-xs text-[#16324F]/60">
                             {r.description}
                           </p>
                         )}
-                        <p className="text-xs text-[#16324F]/55">{formatLabel(r.fileUrl)}</p>
+
+                        <p className="text-xs text-[#16324F]/55">
+                          {formatLabel(r.fileUrl)}
+                        </p>
                       </div>
+
                       <span
                         aria-label={`Open ${r.title}`}
                         className="flex size-8 shrink-0 items-center justify-center rounded-full text-[#16324F]/40 transition-colors group-hover:bg-[#16324F]/5 group-hover:text-[#16324F]"
                       >
                         <Download className="size-4" />
                       </span>
-                    </motion.a>
+                    </motion.button>
                   );
                 })}
               </AnimatePresence>
@@ -190,6 +221,84 @@ export function ResourcesSection() {
           )}
         </div>
       </div>
+      <AnimatePresence>
+  {selectedResource && (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        className="fixed inset-0 z-50 bg-[#16324F]/40 backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setSelectedResource(null)}
+      />
+
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-5 sm:p-8">
+        <motion.div
+          layoutId={`resource-card-${selectedResource.id}`}
+          initial={{ opacity: 0, y: 20, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.96 }}
+          transition={{
+            duration: 0.35,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[#16324F]/10 bg-[#FBFAF5] shadow-2xl"
+        >
+          {/* Close */}
+          <button
+            type="button"
+            onClick={() => setSelectedResource(null)}
+            aria-label="Close"
+            className="absolute right-4 top-4 z-10 flex size-9 items-center justify-center rounded-full bg-[#16324F]/5 text-[#16324F]/60 transition-colors hover:bg-[#16324F]/10 hover:text-[#16324F]"
+          >
+            <X className="size-4" />
+          </button>
+
+          <div className="p-7 sm:p-10">
+            {/* Category */}
+            <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.2em] text-[#C9A227]">
+              {selectedResource.category || "Uncategorized"}
+            </p>
+
+            {/* Title */}
+            <h2 className="pr-10 font-serif text-3xl font-semibold text-[#16324F] sm:text-4xl">
+              {selectedResource.title}
+            </h2>
+
+            {/* Description */}
+            {selectedResource.description && (
+              <p className="mt-5 text-sm leading-7 text-[#16324F]/65 sm:text-base">
+                {selectedResource.description}
+              </p>
+            )}
+
+            {/* File type */}
+            <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-[#16324F]/45">
+              <FileText className="size-4" />
+              {formatLabel(selectedResource.fileUrl)}
+            </div>
+
+            {/* Open resource */}
+            <div className="mt-8">
+              <a
+                href={selectedResource.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#16324F] px-6 py-3 text-sm font-medium text-[#F3F1EA] transition-colors hover:bg-[#1D3F63]"
+              >
+                Open Resource
+                <Download className="size-4" />
+              </a>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </>
+  )}
+</AnimatePresence>
     </section>
   );
 }

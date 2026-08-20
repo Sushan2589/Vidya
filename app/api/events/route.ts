@@ -13,6 +13,7 @@ export async function GET() {
       eligibility,
       syllabus,
       held_in AS heldIn,
+      date,
       registration_link AS registrationLink,
       image_url AS imageUrl
     FROM events
@@ -29,8 +30,9 @@ export async function GET() {
     eligibility: String(row[6] ?? ""),
     syllabus: String(row[7] ?? ""),
     heldIn: String(row[8] ?? ""),
-    registrationLink: row[9] ? String(row[9]) : null,
-    imageUrl: row[10] ? String(row[10]) : null,
+    date: row[9] ? String(row[9]) : null,
+  registrationLink: row[10] ? String(row[10]) : null,
+  imageUrl: row[11] ? String(row[11]) : null,
   }));
 
   return NextResponse.json(rows);

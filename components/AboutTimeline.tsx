@@ -106,7 +106,7 @@ export function AboutTimeline() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto mb-20 max-w-2xl text-center"
+        className="mx-auto mt-10 mb-20 max-w-2xl text-center"
       >
         <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-[#C9A227]">
           Our Story

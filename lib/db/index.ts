@@ -35,6 +35,7 @@ async function initializeDatabase() {
         created_at INTEGER NOT NULL
       )
       `,
+      
 
       `
       CREATE TABLE IF NOT EXISTS events (
@@ -79,6 +80,14 @@ async function initializeDatabase() {
         created_at INTEGER NOT NULL
       )
       `,
+      // Newsletter subscribers
+  `
+  CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )
+  `,
     ],
     "write"
   );
