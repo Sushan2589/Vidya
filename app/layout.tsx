@@ -11,7 +11,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "VIDYA — STEM Olympiads in Nepal",
+  title: "VIDYA — Thinkers over Memorizers",
   description: "Spreading awareness and opportunity for Olympiads across Nepal. Where curiosity begins.",
 };
 
