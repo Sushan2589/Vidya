@@ -8,7 +8,16 @@ export async function POST(req: Request) {
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: "All fields are required." },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Please provide a valid email address." },
+        { status: 400 },
       );
     }
 
@@ -21,7 +30,7 @@ export async function POST(req: Request) {
       console.error("EmailJS environment variables are missing.");
       return NextResponse.json(
         { error: "Server configuration error." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -36,7 +45,7 @@ export async function POST(req: Request) {
       {
         publicKey,
         privateKey,
-      }
+      },
     );
 
     return NextResponse.json({ success: true });
@@ -45,7 +54,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { error: "Failed to send message." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -63,6 +63,12 @@ const handleSubmit = async (
   e: React.FormEvent<HTMLFormElement>
 ) => {
   e.preventDefault();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(userInput.email)) {
+  alert("Please enter a valid email address.");
+  return;
+}
   setLoading(true);
 
   try {
