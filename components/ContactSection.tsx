@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Mail, MapPin, Send, CheckCircle2 } from "lucide-react";
-import emailjs from "@emailjs/browser";
+
 import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 
 const contactDetails = [
@@ -59,51 +59,41 @@ export function ContactSection() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+const handleSubmit = async (
+  e: React.FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
+  setLoading(true);
 
-    setLoading(true);
+  try {
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userInput),
+    });
 
-    const serviceID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    const data = await response.json();
 
-    if (!serviceID || !templateID || !publicKey) {
-      console.error("EmailJS environment variables are missing.");
-      setLoading(false);
-      return;
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to send message.");
     }
 
-    try {
-      const emailParams = {
-        name: userInput.name,
-        email: userInput.email,
-        message: userInput.message,
-      };
+    setSubmitted(true);
 
-      const response = await emailjs.send(
-        serviceID,
-        templateID,
-        emailParams,
-        publicKey
-      );
-
-      if (response.status === 200) {
-        setSubmitted(true);
-
-        setUserInput({
-          name: "",
-          email: "",
-          message: "",
-        });
-      }
-    } catch (error) {
-      console.error("EmailJS error:", error);
-      alert("Failed to send your message. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setUserInput({
+      name: "",
+      email: "",
+      message: "",
+    });
+  } catch (error) {
+    console.error("Contact form error:", error);
+    alert("Failed to send your message. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="relative overflow-hidden bg-[#ddddd6]">
