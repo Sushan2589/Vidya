@@ -10,16 +10,18 @@ async function countOf(table: string) {
 }
 
 export default async function DashboardPage() {
-  const [eventsCount, resourcesCount, timelineCount] = await Promise.all([
+  const [eventsCount, resourcesCount, timelineCount, noticesCount] = await Promise.all([
     countOf("events"),
     countOf("resources"),
     countOf("timeline_items"),
+    countOf("notices"),
   ]);
 
   const cards = [
     { label: "Events", count: eventsCount, href: "/admin/events" },
     { label: "Resources", count: resourcesCount, href: "/admin/resources" },
     { label: "Timeline items", count: timelineCount, href: "/admin/timeline" },
+    { label: "Notices & Popups", count: noticesCount, href: "/admin/notices" },
   ];
 
   return (

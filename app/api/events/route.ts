@@ -20,7 +20,7 @@ export async function GET() {
     ORDER BY sort_order ASC, date ASC
   `);
 
-  const rows = result.rows.map((row) => ({
+  const rows = result.rows.map((row: any) => ({
     slug: String(row[0] ?? ""),
     title: String(row[1] ?? ""),
     subject: String(row[2] ?? ""),

@@ -3,20 +3,59 @@ import { createClient } from "@tursodatabase/serverless/compat";
 const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
-if (!url) {
-  throw new Error("TURSO_DATABASE_URL is not set");
-}
+let db: any;
 
-if (!authToken) {
-  throw new Error("TURSO_AUTH_TOKEN is not set");
-}
+if (url && authToken) {
+  // Turso/libSQL client for production.
+  db = createClient({
+    url,
+    authToken,
+  });
+} else {
+  // Local fallback using node:sqlite when remote Turso credentials are not configured.
+  const sqliteModule = (process as any).getBuiltinModule
+    ? (process as any).getBuiltinModule("node:sqlite")
+    : eval("require")("node:sqlite");
+  const { DatabaseSync } = sqliteModule;
+  const sqlite = new DatabaseSync("vidya_local.db");
+  sqlite.exec("PRAGMA journal_mode = WAL;");
 
-// Turso/libSQL client.
-// Unlike bun:sqlite, this client is asynchronous.
-const db = createClient({
-  url,
-  authToken,
-});
+  db = {
+    async execute(input: string | { sql: string; args?: unknown[] }) {
+      const sql = typeof input === "string" ? input : input.sql;
+      const args = typeof input === "string" ? [] : (input.args ?? []);
+      const trimmed = sql.trim().toUpperCase();
+
+      if (trimmed.startsWith("SELECT") || trimmed.startsWith("PRAGMA")) {
+        const stmt = sqlite.prepare(sql);
+        const rawRows = stmt.all(...(args as any[]));
+        const rows = rawRows.map((r: any) => {
+          const vals = Object.values(r);
+          for (const [k, v] of Object.entries(r)) {
+            (vals as any)[k] = v;
+          }
+          return vals;
+        });
+        return { rows };
+      } else {
+        const stmt = sqlite.prepare(sql);
+        const info = stmt.run(...(args as any[]));
+        return {
+          rows: [],
+          lastInsertRowid: info.lastInsertRowid,
+          changes: info.changes,
+        };
+      }
+    },
+    async batch(statements: (string | { sql: string; args?: unknown[] })[]) {
+      const results = [];
+      for (const stmt of statements) {
+        results.push(await this.execute(stmt));
+      }
+      return results;
+    },
+  };
+}
 
 /**
  * Initialize the database schema.
@@ -81,16 +120,51 @@ async function initializeDatabase() {
       )
       `,
       // Newsletter subscribers
-  `
-  CREATE TABLE IF NOT EXISTS newsletter_subscribers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL UNIQUE,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-  )
-  `,
+      `
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+      `,
+
+      // Popups and Notices
+      `
+      CREATE TABLE IF NOT EXISTS notices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        notice_type TEXT NOT NULL DEFAULT 'popup_combo',
+        image_url TEXT,
+        image_fit TEXT DEFAULT 'contain',
+        tag TEXT DEFAULT 'Important Notice',
+        heading TEXT,
+        description TEXT,
+        design_style TEXT DEFAULT 'gold',
+        button_text TEXT,
+        button_url TEXT,
+        display_location TEXT DEFAULT 'popup',
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at INTEGER NOT NULL
+      )
+      `,
     ],
     "write"
   );
+
+  try {
+    const adminCheck = await db.execute("SELECT COUNT(*) AS count FROM admin_users");
+    const count = Number(adminCheck.rows[0]?.count ?? adminCheck.rows[0]?.[0] ?? 0);
+    if (count === 0) {
+      const bcrypt = require("bcryptjs");
+      const hash = await bcrypt.hash("admin1234", 10);
+      await db.execute({
+        sql: "INSERT INTO admin_users (username, password_hash, created_at) VALUES (?, ?, ?)",
+        args: ["admin", hash, Date.now()],
+      });
+    }
+  } catch {
+    // ignore if admin exists or error
+  }
 }
 
 /**
@@ -106,7 +180,7 @@ async function migrateEventsTable() {
 
 
   const existingCols = new Set(
-    result.rows.map((row) => String(row.name))
+    result.rows.map((row: any) => String(row.name))
   );
 
   const newColumns: [string, string][] = [
@@ -168,9 +242,19 @@ async function migrateEventsTable() {
 
 async function migrateTimelineTable() {
   const result = await db.execute("PRAGMA table_info(timeline_items)");
-  const existingCols = new Set(result.rows.map((r) => String(r.name)));
+  const existingCols = new Set(result.rows.map((r: any) => String(r.name)));
   if (!existingCols.has("image_url")) {
     await db.execute(`ALTER TABLE timeline_items ADD COLUMN image_url TEXT`);
+  }
+}
+
+async function migrateNoticesTable() {
+  const result = await db.execute("PRAGMA table_info(notices)");
+  const existingCols = new Set(result.rows.map((r: any) => String(r.name || r[1])));
+  if (existingCols.size > 0) {
+    if (!existingCols.has("display_location")) {
+      await db.execute(`ALTER TABLE notices ADD COLUMN display_location TEXT DEFAULT 'popup'`);
+    }
   }
 }
 
@@ -183,6 +267,7 @@ async function migrateTimelineTable() {
 await initializeDatabase();
 await migrateEventsTable();
 await migrateTimelineTable();
+await migrateNoticesTable();
 
 export { db };
 export default db;

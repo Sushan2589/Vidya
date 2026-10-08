@@ -8,7 +8,7 @@ export async function GET() {
     ORDER BY sort_order ASC
   `);
 
-  const rows = result.rows.map((row) => ({
+  const rows = result.rows.map((row: any) => ({
     id: Number(row[0]),
     year: String(row[1] ?? ""),
     title: String(row[2] ?? ""),

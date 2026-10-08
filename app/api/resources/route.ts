@@ -13,7 +13,7 @@ export async function GET() {
     ORDER BY created_at DESC
   `);
 
-  const rows = result.rows.map((row) => ({
+  const rows = result.rows.map((row: any) => ({
     id: Number(row[0]),
     title: String(row[1] ?? ""),
     description: row[2] ? String(row[2]) : null,
