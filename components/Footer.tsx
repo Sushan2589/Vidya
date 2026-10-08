@@ -134,7 +134,7 @@ export function Footer() {
             }}
           >
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-[#F3F1EA]/40">
-              In The News
+              Media Coverage
             </p>
             <ul className="flex flex-col gap-2.5">
               {newsArticles.map((article) => (
