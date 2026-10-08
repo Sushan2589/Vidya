@@ -331,7 +331,7 @@ export function Hero() {
             Explore Events
           </Link>
           <Link
-            href="#about"
+            href="/about"
             className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A227]/50 bg-[#C9A227]/10 px-5 py-2.5 text-sm font-medium tracking-wide text-[#16324F] transition-colors hover:border-[#C9A227] hover:bg-[#C9A227]/20"
           >
             Learn more

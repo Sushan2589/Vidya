@@ -1,11 +1,11 @@
-import { AboutTimeline } from "@/components/AboutTimeline";
 import { Hero } from "@/components/Hero";
+import { InitiativesSection } from "@/components/InitiativesSection";
 
 export default function Home() {
   return (
     <main className="bg-neutral-950 text-white">
       <Hero />
-      <AboutTimeline />
+      <InitiativesSection />
     </main>
   );
 }
