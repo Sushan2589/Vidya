@@ -147,9 +147,69 @@ async function initializeDatabase() {
         created_at INTEGER NOT NULL
       )
       `,
+
+      `
+      CREATE TABLE IF NOT EXISTS site_stats (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT NOT NULL UNIQUE,
+        label TEXT NOT NULL,
+        value TEXT NOT NULL DEFAULT '0',
+        suffix TEXT NOT NULL DEFAULT '',
+        sort_order INTEGER NOT NULL DEFAULT 0
+      )
+      `,
+
+      `
+      CREATE TABLE IF NOT EXISTS news_articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        href TEXT NOT NULL DEFAULT '',
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+      `,
+
+      `
+      CREATE TABLE IF NOT EXISTS initiatives (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        image_url TEXT NOT NULL DEFAULT '',
+        start_date TEXT NOT NULL DEFAULT '',
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+      `,
     ],
     "write"
   );
+
+  await db.execute(`
+    INSERT OR IGNORE INTO site_stats (key, label, value, suffix, sort_order)
+    VALUES
+      ('students_guided', 'Students Guided', '9000', '+', 1),
+      ('provinces_reached', 'Provinces Reached', '5', '', 2),
+      ('volunteers', 'Volunteers', '100', '+', 3)
+  `);
+
+  await db.execute(`
+    INSERT OR IGNORE INTO news_articles (title, description, href, sort_order)
+    VALUES
+      ('Hamrakura', 'VIDYA’s outreach and learning initiatives were featured in a leading Nepalese media platform, highlighting our work in building academic opportunities for young students.', 'https://hamrakura.com/news-details/220727/2026-09-16', 1),
+      ('Artha Bulletin', 'Our efforts to inspire students through olympiad awareness, leadership, and digital learning were highlighted in a national story on youth academic growth.', 'https://arthabulletin.com/2026/09/09/%e0%a4%ae%e0%a4%be%e0%a4%a7%e0%a5%8d%e0%a4%af%e0%a4%ae%e0%a4%bf%e0%a4%95-%e0%a4%b5%e0%a4%bf%e0%a4%a6%e0%a5%8d%e0%a4%af%e0%a4%be%e0%a4%b2%e0%a4%af%e0%a4%b9%e0%a4%b0%e0%a5%82%e0%a4%ae%e0%a4%be-%e0%a4%93/', 2)
+  `);
+
+  await db.execute(`
+    INSERT OR IGNORE INTO initiatives (title, description, image_url, start_date, sort_order)
+    VALUES
+      ('Outreach Campaigns', 'VIDYA has been leading outreach campaigns to raise awareness about olympiads and opportunities across Nepal. What began as our first initiative has now grown into a sustained effort, reaching over 9,000 students across 36 schools to date.', 'https://i.ibb.co/m5BSVjfN/Outreach-VIDYA.jpg', 'May 2025', 1),
+      ('VIDYA X JCI Edutech', 'In an era shaped by technology and AI, VIDYA has collaborated with JCI Jr. to conduct awareness sessions across Chandragiri Municipality, reaching more than 1,000 students. These sessions provide valuable knowledge about AI, technology, and its practical applications.', 'https://i.ibb.co/qMhPbBsQ/image-025.jpg', 'July 2026', 2),
+      ('Opportunity Connect Nepal', 'VIDYA is building an online community for Nepali students where aspiring learners can connect with international delegates and build a strong network to help them prepare for olympiads, hackathons, and competitive exams.', 'https://i.ibb.co/FbzXJ0sF/Screenshot-2026-10-08-185002.png', 'August 2026', 3),
+      ('Weekly Olympiad Workshops', 'VIDYA hosts weekly olympiad workshops featuring international participants and medalists as keynote speakers. These sessions cover a wide range of topics, including international mathematics, physics, chemistry, biology, AI, and astronomy olympiads, among others.', 'https://i.ibb.co/35Z3rXkc/image-031.jpg', 'August 2026', 4)
+  `);
 
   try {
     const adminCheck = await db.execute("SELECT COUNT(*) AS count FROM admin_users");

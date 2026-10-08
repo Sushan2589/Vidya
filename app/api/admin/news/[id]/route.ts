@@ -9,20 +9,19 @@ export async function PUT(
   const body = await req.json();
   const title = String(body.title ?? "").trim();
   const description = String(body.description ?? "").trim();
-  const imageUrl = String(body.imageUrl ?? "").trim();
-  const startDate = String(body.startDate ?? "").trim();
+  const href = String(body.href ?? "").trim();
 
-  if (!title || !imageUrl) {
-    return NextResponse.json({ error: "Title and image URL are required." }, { status: 400 });
+  if (!title || !href) {
+    return NextResponse.json({ error: "Title and link are required." }, { status: 400 });
   }
 
   await db.execute({
     sql: `
-      UPDATE initiatives
-      SET title = ?, description = ?, image_url = ?, start_date = ?
+      UPDATE news_articles
+      SET title = ?, description = ?, href = ?
       WHERE id = ? AND is_active = 1
     `,
-    args: [title, description, imageUrl, startDate, Number(id)],
+    args: [title, description, href, Number(id)],
   });
 
   return NextResponse.json({ ok: true });
@@ -36,7 +35,7 @@ export async function DELETE(
 
   await db.execute({
     sql: `
-      UPDATE initiatives
+      UPDATE news_articles
       SET is_active = 0
       WHERE id = ?
     `,

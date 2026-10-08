@@ -2,37 +2,31 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-type Initiative = {
+type NewsArticle = {
   id: number;
   title: string;
   description: string;
-  imageUrl: string;
-  startDate: string;
+  href: string;
 };
 
-const EMPTY_FORM = {
-  title: "",
-  description: "",
-  imageUrl: "",
-  startDate: "",
-};
+const EMPTY_FORM = { title: "", description: "", href: "" };
 
-export default function InitiativesAdminPage() {
-  const [items, setItems] = useState<Initiative[]>([]);
+export default function NewsAdminPage() {
+  const [items, setItems] = useState<NewsArticle[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadItems = useCallback(async () => {
-    const res = await fetch("/api/admin/initiatives");
+    const res = await fetch("/api/admin/news");
     if (!res.ok) return;
     setItems(await res.json());
   }, []);
 
   useEffect(() => {
     const run = async () => {
-      const res = await fetch("/api/admin/initiatives");
+      const res = await fetch("/api/admin/news");
       if (!res.ok) return;
       setItems(await res.json());
     };
@@ -45,7 +39,7 @@ export default function InitiativesAdminPage() {
     setSaving(true);
     setError(null);
 
-    const url = editingId ? `/api/admin/initiatives/${editingId}` : "/api/admin/initiatives";
+    const url = editingId ? `/api/admin/news/${editingId}` : "/api/admin/news";
     const method = editingId ? "PUT" : "POST";
 
     const res = await fetch(url, {
@@ -58,7 +52,7 @@ export default function InitiativesAdminPage() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(typeof data.error === "string" ? data.error : "Unable to save initiative.");
+      setError(typeof data.error === "string" ? data.error : "Unable to save news item.");
       return;
     }
 
@@ -67,30 +61,25 @@ export default function InitiativesAdminPage() {
     void loadItems();
   }
 
-  function startEdit(item: Initiative) {
+  function startEdit(item: NewsArticle) {
     setEditingId(item.id);
-    setForm({
-      title: item.title,
-      description: item.description,
-      imageUrl: item.imageUrl,
-      startDate: item.startDate,
-    });
+    setForm({ title: item.title, description: item.description, href: item.href });
     setError(null);
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this initiative?")) return;
-    await fetch(`/api/admin/initiatives/${id}`, { method: "DELETE" });
+    if (!confirm("Delete this news item?")) return;
+    await fetch(`/api/admin/news/${id}`, { method: "DELETE" });
     void loadItems();
   }
 
   return (
     <div>
       <h1 className="font-serif text-3xl font-medium text-[#16324F]">
-        Initiatives
+        News & Media
       </h1>
       <p className="mt-1 text-sm text-[#16324F]/60">
-        Manage the feature cards displayed on the homepage.
+        Manage the stories shown in the homepage news strip.
       </p>
 
       <form
@@ -111,24 +100,13 @@ export default function InitiativesAdminPage() {
 
         <div>
           <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[#16324F]/70">
-            Start date
+            Link URL
           </label>
           <input
-            value={form.startDate}
-            onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-            className="w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[#16324F]/70">
-            Image URL
-          </label>
-          <input
-            type="url"
             required
-            value={form.imageUrl}
-            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+            type="url"
+            value={form.href}
+            onChange={(e) => setForm({ ...form, href: e.target.value })}
             className="w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25"
           />
         </div>
@@ -138,7 +116,7 @@ export default function InitiativesAdminPage() {
             Description
           </label>
           <textarea
-            rows={5}
+            rows={4}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             className="w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25"
@@ -155,7 +133,7 @@ export default function InitiativesAdminPage() {
             disabled={saving}
             className="rounded-full bg-[#16324F] px-5 py-2.5 text-sm font-medium tracking-wide text-[#F3F1EA] transition-colors hover:bg-[#1D3F63] disabled:opacity-60"
           >
-            {saving ? "Saving..." : editingId ? "Save changes" : "Add initiative"}
+            {saving ? "Saving..." : editingId ? "Save changes" : "Add news item"}
           </button>
 
           {editingId && (
@@ -176,45 +154,42 @@ export default function InitiativesAdminPage() {
 
       <div className="mt-8 space-y-3">
         {items.length === 0 ? (
-          <p className="text-sm text-[#16324F]/60">No initiatives yet.</p>
+          <p className="text-sm text-[#16324F]/60">No news items yet.</p>
         ) : (
           items.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl border border-[#16324F]/10 bg-[#F3F1EA] p-4"
+              className="flex items-start justify-between gap-3 rounded-2xl border border-[#16324F]/10 bg-[#F3F1EA] p-4"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-[#16324F]">{item.title}</p>
-                  <p className="mt-1 text-xs uppercase tracking-wide text-[#C9A227]">
-                    {item.startDate || "No date"}
-                  </p>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => startEdit(item)}
-                    className="rounded-full border border-[#16324F]/20 px-4 py-1.5 text-xs font-medium text-[#16324F]/70 hover:bg-[#16324F]/5"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(item.id)}
-                    className="rounded-full border border-red-200 bg-red-50 px-4 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100"
-                  >
-                    Delete
-                  </button>
-                </div>
+              <div>
+                <p className="font-medium text-[#16324F]">{item.title}</p>
+                <p className="mt-1 text-sm text-[#16324F]/70">{item.description}</p>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-block text-sm text-[#16324F] underline decoration-[#C9A227] underline-offset-4"
+                >
+                  Open link
+                </a>
               </div>
 
-              <div
-                className="relative mt-4 h-32 w-full overflow-hidden rounded-xl bg-cover bg-center"
-                style={{ backgroundImage: `url(${item.imageUrl})` }}
-                aria-label={item.title}
-              />
-              <p className="mt-3 text-sm text-[#16324F]/70">{item.description}</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => startEdit(item)}
+                  className="rounded-full border border-[#16324F]/20 px-4 py-1.5 text-xs font-medium text-[#16324F]/70 hover:bg-[#16324F]/5"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(item.id)}
+                  className="rounded-full border border-red-200 bg-red-50 px-4 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))
         )}
