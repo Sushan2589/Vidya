@@ -9,9 +9,21 @@ import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
+  { name: "Initiatives", href: "/#initiatives" },
   { name: "Events", href: "/olympiads" },
   { name: "Resources", href: "/resources" },
   { name: "Contact", href: "/contact" },
+];
+
+const newsArticles = [
+  {
+    name: "Hamrakura",
+    href: "https://hamrakura.com/news-details/220727/2026-09-16",
+  },
+  {
+    name: "Artha Bulletin",
+    href: "https://arthabulletin.com/2026/09/09/%e0%a4%ae%e0%a4%be%e0%a4%a7%e0%a5%8d%e0%a4%af%e0%a4%ae%e0%a4%bf%e0%a4%95-%e0%a4%b5%e0%a4%bf%e0%a4%a6%e0%a5%8d%e0%a4%af%e0%a4%be%e0%a4%b2%e0%a4%af%e0%a4%b9%e0%a4%b0%e0%a5%82%e0%a4%ae%e0%a4%be-%e0%a4%93/",
+  },
 ];
 
 const socialLinks = [
@@ -58,8 +70,8 @@ export function Footer() {
         <circle cx="180" cy="180" r="140" stroke="#C9A227" strokeWidth="1" />
       </svg>
 
-      <div className="relative mx-auto max-w-5xl px-6 pb-10 pt-16 sm:pt-20">
-        <div className="grid gap-12 sm:grid-cols-[1.3fr_1fr_1fr]">
+      <div className="relative mx-auto max-w-6xl px-6 pb-10 pt-16 sm:pt-20">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_1fr_1.1fr]">
           {/* Brand column */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -110,6 +122,37 @@ export function Footer() {
             </ul>
           </motion.div>
 
+          {/* News / Media coverage column */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{
+              duration: 0.5,
+              delay: 0.12,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <p className="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-[#F3F1EA]/40">
+              In The News
+            </p>
+            <ul className="flex flex-col gap-2.5">
+              {newsArticles.map((article) => (
+                <li key={article.name}>
+                  <a
+                    href={article.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-[#F3F1EA]/65 transition-colors hover:text-[#C9A227]"
+                  >
+                    <span>{article.name}</span>
+                    <span className="text-xs text-[#C9A227]/70">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
           {/* Contact column */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -151,7 +194,7 @@ export function Footer() {
                   const Icon = social.icon;
 
                   return (
-                    <a 
+                    <a
                       key={social.name}
                       href={social.href}
                       target="_blank"
