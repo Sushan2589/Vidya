@@ -3,10 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import type { SiteStats } from "@/lib/site-content";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-
-const START_DATE = new Date("2025-04-01T00:00:00+05:45");
 
 const LAUREL_LEAVES = [
   { x: 0, y: 0, r: -8, s: 1 },
@@ -83,6 +80,8 @@ function AnimatedCounter({
 }
 
 function ElapsedTime() {
+  const START_DATE = new Date("2025-04-01T00:00:00+05:45");
+
   const [elapsed, setElapsed] = React.useState({
     years: 0,
     months: 0,
@@ -187,11 +186,7 @@ function ElapsedTime() {
   );
 }
 
-export function Hero({ stats }: { stats?: Partial<SiteStats> }) {
-  const studentCount = stats?.studentsGuided ?? 9000;
-  const provinceCount = stats?.provincesReached ?? 5;
-  const volunteerCount = stats?.volunteers ?? 100;
-
+export function Hero() {
   return (
     <section className="relative flex min-h-svh items-center justify-center overflow-hidden bg-[#ddddd6]">
       <div
@@ -356,7 +351,7 @@ export function Hero({ stats }: { stats?: Partial<SiteStats> }) {
           {/* Students */}
           <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={studentCount} suffix="+" />
+              <AnimatedCounter value={9000} suffix="+" />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Students Guided
@@ -366,7 +361,7 @@ export function Hero({ stats }: { stats?: Partial<SiteStats> }) {
           {/* Provinces */}
           <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={provinceCount} />
+              <AnimatedCounter value={5} />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Provinces Reached
@@ -379,7 +374,7 @@ export function Hero({ stats }: { stats?: Partial<SiteStats> }) {
           {/* Volunteers */}
           <div className="flex flex-col items-center px-4">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={volunteerCount} suffix="+" />
+              <AnimatedCounter value={100} suffix="+" />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Volunteers

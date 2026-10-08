@@ -7,9 +7,6 @@ import { Menu, X, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/site", label: "Site Settings" },
-  { href: "/admin/news", label: "News" },
-  { href: "/admin/initiatives", label: "Initiatives" },
   { href: "/admin/events", label: "Events" },
   { href: "/admin/resources", label: "Resources" },
   { href: "/admin/timeline", label: "Timeline" },

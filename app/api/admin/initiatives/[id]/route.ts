@@ -1,47 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import db from "@/lib/db";
+import { NextResponse } from "next/server";
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const body = await req.json();
-  const title = String(body.title ?? "").trim();
-  const description = String(body.description ?? "").trim();
-  const imageUrl = String(body.imageUrl ?? "").trim();
-  const startDate = String(body.startDate ?? "").trim();
-
-  if (!title || !imageUrl) {
-    return NextResponse.json({ error: "Title and image URL are required." }, { status: 400 });
-  }
-
-  await db.execute({
-    sql: `
-      UPDATE initiatives
-      SET title = ?, description = ?, image_url = ?, start_date = ?
-      WHERE id = ? AND is_active = 1
-    `,
-    args: [title, description, imageUrl, startDate, Number(id)],
-  });
-
-  return NextResponse.json({ ok: true });
-}
-
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-
-  await db.execute({
-    sql: `
-      UPDATE initiatives
-      SET is_active = 0
-      WHERE id = ?
-    `,
-    args: [Number(id)],
-  });
-
-  return NextResponse.json({ ok: true });
+export async function GET() {
+  return NextResponse.json([]);
 }

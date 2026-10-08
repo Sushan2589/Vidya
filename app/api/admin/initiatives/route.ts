@@ -1,45 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import db from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  const result = await db.execute(
-    "SELECT id, title, description, image_url AS imageUrl, start_date AS startDate, sort_order FROM initiatives WHERE is_active = 1 ORDER BY sort_order ASC, created_at DESC"
-  );
-
-  return NextResponse.json(
-    result.rows.map((row: Record<string, unknown>) => ({
-      id: Number(row.id),
-      title: String(row.title ?? ""),
-      description: String(row.description ?? ""),
-      imageUrl: String(row.imageUrl ?? ""),
-      startDate: String(row.startDate ?? ""),
-    }))
-  );
-}
-
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const title = String(body.title ?? "").trim();
-  const description = String(body.description ?? "").trim();
-  const imageUrl = String(body.imageUrl ?? "").trim();
-  const startDate = String(body.startDate ?? "").trim();
-
-  if (!title || !imageUrl) {
-    return NextResponse.json({ error: "Title and image URL are required." }, { status: 400 });
-  }
-
-  const nextOrder = await db.execute(
-    "SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order FROM initiatives"
-  );
-  const sortOrder = Number(nextOrder.rows[0]?.next_order ?? 1);
-
-  await db.execute({
-    sql: `
-      INSERT INTO initiatives (title, description, image_url, start_date, sort_order, is_active)
-      VALUES (?, ?, ?, ?, ?, 1)
-    `,
-    args: [title, description, imageUrl, startDate, sortOrder],
-  });
-
-  return NextResponse.json({ ok: true }, { status: 201 });
+  return NextResponse.json([]);
 }

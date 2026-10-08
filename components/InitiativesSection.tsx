@@ -146,11 +146,7 @@ function InitiativeCard({
   );
 }
 
-export function InitiativesSection({
-  initiatives = INITIATIVES,
-}: {
-  initiatives?: Initiative[];
-}) {
+export function InitiativesSection() {
   return (
     <section className="relative bg-[#ddddd6] px-6 py-20 sm:py-28" id="initiatives">
       {/* Subtle background pattern */}
@@ -195,8 +191,8 @@ export function InitiativesSection({
 
       {/* Initiative cards grid */}
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2 lg:gap-10">
-        {initiatives.map((initiative, i) => (
-          <InitiativeCard key={`${initiative.title}-${i}`} initiative={initiative} index={i} />
+        {INITIATIVES.map((initiative, i) => (
+          <InitiativeCard key={initiative.title} initiative={initiative} index={i} />
         ))}
       </div>
     </section>
