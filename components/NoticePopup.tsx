@@ -172,60 +172,97 @@ export default function NoticePopup() {
     return null;
   }
 
+  const targetUrl = currentFlyer?.buttonUrl?.trim();
+  const isCover = currentFlyer?.imageFit === "cover";
+
   return (
     <>
-      {/* 1. FLYER POPUP MODAL */}
-      {/* Backdrop: deep frosted glass blur (backdrop-blur-2xl), light tinted (bg-neutral-900/35), not solid black */}
+      {/* 1. FLYER POPUP MODAL (Academic / Institutional card with header, close button, and bit blurred background) */}
       {currentFlyer && (
         <div
           onClick={(e) => {
-            // Dismiss if clicking the blurred backdrop
+            // Dismiss if clicking the backdrop outside the modal
             if (e.target === e.currentTarget) {
               handleDismissFlyer(currentFlyer.id);
             }
           }}
-          style={{ backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}
-          className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-[#16324F]/50 backdrop-blur-2xl animate-in fade-in duration-300"
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-black/45 backdrop-blur-[4px] animate-in fade-in duration-200"
         >
-          {/* Main flyer container hugging image aspect ratio */}
-          <div className="relative flex flex-col items-center max-w-[95vw] max-h-[94vh]">
-            {/* Close button placed floating outside the top right of flyer */}
-            <button
-              onClick={() => handleDismissFlyer(currentFlyer.id)}
-              className="absolute -top-3.5 -right-3.5 sm:-top-4 sm:-right-4 z-50 flex size-9 sm:size-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-2xl ring-2 ring-black/20 hover:bg-neutral-100 hover:scale-110 active:scale-95 transition-all"
-              aria-label="Close flyer"
-            >
-              <X className="size-5 stroke-[2.5]" />
-            </button>
+          {/* Main Modal Card */}
+          <div className="relative flex flex-col w-auto max-w-[94vw] max-h-[92vh] overflow-hidden rounded-xl bg-white shadow-2xl border border-neutral-200/80 animate-in zoom-in-95 duration-200">
+            {/* Header bar matching user's reference: Title on left, Close ✕ on right */}
+            <div className="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 sm:px-5">
+              <h3 className="truncate pr-3 font-sans text-sm sm:text-base font-semibold text-neutral-800">
+                {currentFlyer.heading || currentFlyer.title}
+              </h3>
 
-            {/* Queue Counter badge when more than 1 flyer exists */}
-            {activeFlyers.length > 1 && (
-              <div className="absolute top-2 left-2 z-40 flex items-center gap-1.5 rounded-full bg-black/70 border border-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md shadow-lg">
-                <span>
-                  Flyer 1 of {activeFlyers.length}
-                </span>
-                <span className="text-neutral-300 text-[10px]">
-                  (Next flyer opens on close)
-                </span>
-              </div>
-            )}
-
-            {/* Flyer Body */}
-            <div className="overflow-y-auto max-h-[calc(94vh-36px)] flex flex-col items-center">
-              {renderFlyerCard(currentFlyer)}
-            </div>
-
-            {/* If more than 1 flyer exists in queue, show Next Flyer button */}
-            {activeFlyers.length > 1 && (
-              <div className="mt-2.5">
+              <div className="flex items-center gap-2 shrink-0">
+                {activeFlyers.length > 1 && (
+                  <span className="rounded-full bg-neutral-100 border border-neutral-200 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600">
+                    1 of {activeFlyers.length}
+                  </span>
+                )}
                 <button
                   onClick={() => handleDismissFlyer(currentFlyer.id)}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-neutral-950/75 border border-white/20 text-xs font-semibold text-white backdrop-blur-md shadow-lg hover:bg-white hover:text-neutral-950 transition-all"
+                  className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition"
+                  aria-label="Close notice"
                 >
-                  <span>Next Flyer ❯</span>
-                  <span className="text-[10px] opacity-75">
-                    ({activeFlyers.length - 1} more)
-                  </span>
+                  <X className="size-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Flyer Image Body */}
+            <div className="overflow-y-auto max-h-[calc(92vh-54px)] bg-neutral-50 flex flex-col items-center">
+              {currentFlyer.imageUrl && (
+                targetUrl ? (
+                  <a
+                    href={targetUrl}
+                    target={targetUrl.startsWith("http") ? "_blank" : undefined}
+                    rel={targetUrl.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="group relative block cursor-pointer"
+                    title="Click to visit website"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={currentFlyer.imageUrl}
+                      alt={currentFlyer.heading || currentFlyer.title}
+                      className={`block max-h-[78vh] max-w-[90vw] sm:max-w-[620px] md:max-w-[700px] w-auto h-auto transition-transform duration-200 group-hover:opacity-95 ${
+                        isCover ? "object-cover" : "object-contain"
+                      }`}
+                    />
+                    <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-between text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-semibold flex items-center gap-1">
+                        <span>{currentFlyer.buttonText || "Open link"}</span>
+                        <ExternalLink className="size-3.5 text-[#C9A227]" />
+                      </span>
+                      <span className="rounded-full bg-[#C9A227] px-2.5 py-0.5 text-[11px] font-bold text-neutral-950">
+                        Visit ↗
+                      </span>
+                    </div>
+                  </a>
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={currentFlyer.imageUrl}
+                    alt={currentFlyer.heading || currentFlyer.title}
+                    className={`block max-h-[78vh] max-w-[90vw] sm:max-w-[620px] md:max-w-[700px] w-auto h-auto ${
+                      isCover ? "object-cover" : "object-contain"
+                    }`}
+                  />
+                )
+              )}
+            </div>
+
+            {/* Optional bottom bar if multiple flyers exist */}
+            {activeFlyers.length > 1 && (
+              <div className="border-t border-neutral-200 bg-white px-4 py-2 flex items-center justify-between text-xs text-neutral-500">
+                <span className="text-[11px]">Next flyer will open on close</span>
+                <button
+                  onClick={() => handleDismissFlyer(currentFlyer.id)}
+                  className="font-semibold text-[#16324F] hover:underline text-xs"
+                >
+                  Next Flyer ❯
                 </button>
               </div>
             )}
@@ -238,7 +275,7 @@ export default function NoticePopup() {
         <div className="fixed top-20 sm:top-24 right-3 sm:right-6 z-[9990] flex flex-col gap-3 max-w-[calc(100vw-1.5rem)] sm:max-w-md pointer-events-auto">
           {activeToasts.map((notice, idx) => {
             const theme = STYLE_THEMES[notice.designStyle] || STYLE_THEMES.gold;
-            const targetUrl = notice.buttonUrl?.trim();
+            const toastUrl = notice.buttonUrl?.trim();
 
             return (
               <div
@@ -283,12 +320,12 @@ export default function NoticePopup() {
                 )}
 
                 {/* CTA Action link / button */}
-                {targetUrl && (
+                {toastUrl && (
                   <div className="mt-3.5 flex items-center justify-end">
                     <a
-                      href={targetUrl}
-                      target={targetUrl.startsWith("http") ? "_blank" : undefined}
-                      rel={targetUrl.startsWith("http") ? "noopener noreferrer" : undefined}
+                      href={toastUrl}
+                      target={toastUrl.startsWith("http") ? "_blank" : undefined}
+                      rel={toastUrl.startsWith("http") ? "noopener noreferrer" : undefined}
                       className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-bold transition ${theme.btnClass}`}
                     >
                       <span>{notice.buttonText || "Open Details"}</span>
@@ -302,55 +339,5 @@ export default function NoticePopup() {
         </div>
       )}
     </>
-  );
-}
-
-// Helper to render the flyer poster in its natural aspect ratio
-function renderFlyerCard(notice: Notice) {
-  const targetUrl = notice.buttonUrl?.trim();
-  const isCover = notice.imageFit === "cover";
-
-  const ImageElement = (
-    <div className="relative group overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 bg-neutral-950 flex items-center justify-center">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={notice.imageUrl || ""}
-        alt={notice.title}
-        className={`block max-h-[82vh] max-w-[90vw] sm:max-w-[560px] md:max-w-[640px] w-auto h-auto transition-transform duration-300 ${
-          targetUrl ? "group-hover:scale-[1.015]" : ""
-        } ${isCover ? "object-cover" : "object-contain"}`}
-      />
-
-      {/* If there is a click destination URL, show interactive cue */}
-      {targetUrl && (
-        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-center justify-between gap-2 opacity-95 transition-opacity">
-          <span className="text-xs sm:text-sm font-semibold text-white drop-shadow flex items-center gap-1.5">
-            <span>{notice.buttonText || "Click to open registration / website"}</span>
-            <ExternalLink className="size-3.5 sm:size-4 shrink-0 text-[#C9A227]" />
-          </span>
-          <span className="rounded-full bg-[#C9A227] px-3 py-1 text-[11px] font-bold text-neutral-950 shadow-md">
-            Visit ↗
-          </span>
-        </div>
-      )}
-    </div>
-  );
-
-  return (
-    <div className="flex flex-col items-center">
-      {targetUrl ? (
-        <a
-          href={targetUrl}
-          target={targetUrl.startsWith("http") ? "_blank" : undefined}
-          rel={targetUrl.startsWith("http") ? "noopener noreferrer" : undefined}
-          className="block cursor-pointer focus:outline-none"
-          title="Click to visit website"
-        >
-          {ImageElement}
-        </a>
-      ) : (
-        ImageElement
-      )}
-    </div>
   );
 }
