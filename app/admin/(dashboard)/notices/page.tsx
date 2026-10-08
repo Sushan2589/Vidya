@@ -774,27 +774,42 @@ export default function NoticesPage() {
                   </div>
                 )}
 
-                {/* Call to action Button */}
+                {/* Destination Link & CTA Button */}
                 <div className="rounded-2xl border border-[#16324F]/15 bg-white/70 p-4 space-y-3">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#16324F]">
-                    Action Button (Optional)
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[#16324F]">
+                      Click Destination & Action Link
+                    </span>
+                    <span className="text-[11px] text-[#16324F]/60">
+                      Clicking flyer image or button opens this URL
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#16324F] mb-1">
+                      Destination URL (Website, Google Form, Telegram, etc.)
+                    </label>
                     <input
                       type="text"
-                      placeholder="Button Label (e.g. Register Now)"
+                      placeholder="e.g. https://forms.gle/xyz or /resources or /#olympiads"
+                      value={formData.buttonUrl || ""}
+                      onChange={(e) => setFormData({ ...formData, buttonUrl: e.target.value })}
+                      className="w-full rounded-xl border border-[#16324F]/20 bg-white px-3 py-2 text-sm text-[#16324F] focus:border-[#C9A227] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#16324F] mb-1">
+                      Button / Banner Text (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Register Now / Open Link / View Details"
                       value={formData.buttonText || ""}
                       onChange={(e) =>
                         setFormData({ ...formData, buttonText: e.target.value })
                       }
-                      className="rounded-xl border border-[#16324F]/20 bg-white px-3 py-2 text-sm text-[#16324F] focus:border-[#C9A227] focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Button Link (e.g. /resources or https://...)"
-                      value={formData.buttonUrl || ""}
-                      onChange={(e) => setFormData({ ...formData, buttonUrl: e.target.value })}
-                      className="rounded-xl border border-[#16324F]/20 bg-white px-3 py-2 text-sm text-[#16324F] focus:border-[#C9A227] focus:outline-none"
+                      className="w-full rounded-xl border border-[#16324F]/20 bg-white px-3 py-2 text-sm text-[#16324F] focus:border-[#C9A227] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -891,33 +906,37 @@ function renderPreviewBox(notice: Notice) {
     );
   }
 
-  // Pure Image Flyer (supports ANY aspect ratio and dimension)
+  // Pure Image Flyer (supports ANY aspect ratio and dimension without distortion)
   if (notice.noticeType === "popup_image") {
+    const isCover = notice.imageFit === "cover";
     return (
-      <div
-        className={`relative w-full max-w-md overflow-hidden rounded-3xl border shadow-2xl ${theme.cardBg} ${theme.border}`}
-      >
+      <div className="relative flex flex-col items-center">
         {notice.imageUrl ? (
-          <div className="relative w-full flex items-center justify-center p-2 bg-black/30">
+          <div className="relative group overflow-hidden rounded-2xl shadow-2xl border border-white/20 bg-neutral-950 flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={notice.imageUrl}
               alt={notice.title}
-              className={`w-full max-h-[70vh] rounded-2xl object-${notice.imageFit}`}
+              className={`block max-h-[55vh] max-w-full w-auto h-auto ${
+                isCover ? "object-cover" : "object-contain"
+              }`}
             />
+            {notice.buttonUrl && (
+              <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold text-white truncate flex items-center gap-1">
+                  <span>{notice.buttonText || "Click to open link"}</span>
+                  <ExternalLink className="size-3 text-[#C9A227]" />
+                </span>
+                <span className="rounded-full bg-[#C9A227] px-2 py-0.5 text-[10px] font-bold text-neutral-950">
+                  Visit ↗
+                </span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-center text-neutral-400">
             <ImageIcon className="size-12 stroke-[1.5]" />
             <p className="mt-2 text-xs">Enter Image URL to preview flyer</p>
-          </div>
-        )}
-
-        {notice.buttonText && (
-          <div className="p-4 border-t border-white/10 text-center">
-            <button className={`w-full rounded-xl py-2.5 text-sm font-bold ${theme.btnClass}`}>
-              {notice.buttonText}
-            </button>
           </div>
         )}
       </div>
@@ -972,7 +991,9 @@ function renderPreviewBox(notice: Notice) {
           <img
             src={notice.imageUrl}
             alt={notice.heading || notice.title}
-            className={`w-full max-h-56 object-${notice.imageFit}`}
+            className={`w-full max-h-56 ${
+              notice.imageFit === "cover" ? "object-cover" : "object-contain"
+            }`}
           />
         </div>
       )}
