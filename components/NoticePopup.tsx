@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
-import { X, ExternalLink, Bell, ChevronRight, ChevronLeft } from "lucide-react";
+import { X, ExternalLink, Bell } from "lucide-react";
 
 type NoticeType = "popup_image" | "popup_text" | "popup_combo" | "banner_text";
 type DesignStyle = "gold" | "navy" | "crimson" | "dark" | "minimal";
@@ -96,7 +96,6 @@ export default function NoticePopup() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [dismissedFlyerIds, setDismissedFlyerIds] = useState<Set<number>>(new Set());
   const [dismissedToastIds, setDismissedToastIds] = useState<Set<number>>(new Set());
-  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   // Exclude admin pages
   const isAdminRoute = pathname?.startsWith("/admin");
@@ -119,32 +118,7 @@ export default function NoticePopup() {
     loadNotices();
   }, [isAdminRoute]);
 
-  // Read dismissed items from localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("vidya_dismissed_notices");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const now = Date.now();
-        const validFlyerIds = new Set<number>();
-        const validToastIds = new Set<number>();
-
-        for (const [idStr, expiry] of Object.entries(parsed)) {
-          if (typeof expiry === "number" && expiry > now) {
-            validFlyerIds.add(Number(idStr));
-            validToastIds.add(Number(idStr));
-          }
-        }
-        setDismissedFlyerIds(validFlyerIds);
-        setDismissedToastIds(validToastIds);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
   // 1. FLYERS (Modal Popups with Posters / Images)
-  // These are notices that are image-based and set to popup.
   const activeFlyers = notices.filter(
     (n) =>
       (n.noticeType === "popup_image" || (n.noticeType === "popup_combo" && Boolean(n.imageUrl))) &&
@@ -157,7 +131,6 @@ export default function NoticePopup() {
   const currentFlyer = activeFlyers[0] || null;
 
   // 2. TEXT NOTICES (Top-Right Small Floating Card that comes down without hiding anything)
-  // Text announcements, alert notices, or banners that don't block the screen.
   const activeToasts = notices.filter(
     (n) =>
       (n.noticeType === "popup_text" ||
@@ -186,24 +159,9 @@ export default function NoticePopup() {
   }, [currentFlyer, isAdminRoute]);
 
   // Dismiss a flyer: removes it from the queue so the NEXT flyer immediately displays!
-  const handleDismissFlyer = useCallback(
-    (id: number) => {
-      if (dontShowAgain) {
-        try {
-          const stored = localStorage.getItem("vidya_dismissed_notices");
-          const parsed = stored ? JSON.parse(stored) : {};
-          parsed[id] = Date.now() + 24 * 60 * 60 * 1000;
-          localStorage.setItem("vidya_dismissed_notices", JSON.stringify(parsed));
-        } catch {
-          // ignore
-        }
-      }
-
-      // Add to dismissed set: activeFlyers[0] is now replaced by the next flyer!
-      setDismissedFlyerIds((prev) => new Set([...prev, id]));
-    },
-    [dontShowAgain]
-  );
+  const handleDismissFlyer = useCallback((id: number) => {
+    setDismissedFlyerIds((prev) => new Set([...prev, id]));
+  }, []);
 
   // Dismiss a top-right notice toast
   const handleDismissToast = useCallback((id: number) => {
@@ -216,17 +174,17 @@ export default function NoticePopup() {
 
   return (
     <>
-      {/* 1. FLYER POPUP MODAL (When there are active flyers) */}
-      {/* If there are multiple flyers, crossing one immediately reveals the next one! */}
+      {/* 1. FLYER POPUP MODAL */}
+      {/* Backdrop: deep frosted glass blur (backdrop-blur-2xl), light tinted (bg-neutral-900/35), not solid black */}
       {currentFlyer && (
         <div
           onClick={(e) => {
-            // Dismiss if clicking backdrop
+            // Dismiss if clicking the blurred backdrop
             if (e.target === e.currentTarget) {
               handleDismissFlyer(currentFlyer.id);
             }
           }}
-          className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-neutral-900/35 backdrop-blur-2xl backdrop-saturate-150 animate-in fade-in duration-300"
         >
           {/* Main flyer container hugging image aspect ratio */}
           <div className="relative flex flex-col items-center max-w-[95vw] max-h-[94vh]">
@@ -234,53 +192,47 @@ export default function NoticePopup() {
             <button
               onClick={() => handleDismissFlyer(currentFlyer.id)}
               className="absolute -top-3.5 -right-3.5 sm:-top-4 sm:-right-4 z-50 flex size-9 sm:size-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-2xl ring-2 ring-black/20 hover:bg-neutral-100 hover:scale-110 active:scale-95 transition-all"
-              aria-label="Close notice"
+              aria-label="Close flyer"
             >
               <X className="size-5 stroke-[2.5]" />
             </button>
 
             {/* Queue Counter badge when more than 1 flyer exists */}
             {activeFlyers.length > 1 && (
-              <div className="absolute top-2 left-2 z-40 flex items-center gap-1.5 rounded-full bg-black/80 border border-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md shadow-lg">
+              <div className="absolute top-2 left-2 z-40 flex items-center gap-1.5 rounded-full bg-black/70 border border-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md shadow-lg">
                 <span>
                   Flyer 1 of {activeFlyers.length}
                 </span>
-                <span className="text-neutral-400 text-[10px]">
+                <span className="text-neutral-300 text-[10px]">
                   (Next flyer opens on close)
                 </span>
               </div>
             )}
 
             {/* Flyer Body */}
-            <div className="overflow-y-auto max-h-[calc(94vh-48px)] flex flex-col items-center">
+            <div className="overflow-y-auto max-h-[calc(94vh-36px)] flex flex-col items-center">
               {renderFlyerCard(currentFlyer)}
             </div>
 
-            {/* Bottom Controls: "Don't show again today" & Dismiss */}
-            <div className="mt-2.5 flex items-center justify-between gap-6 px-3.5 py-1 rounded-full bg-neutral-950/75 border border-white/10 text-xs backdrop-blur-md select-none text-neutral-300">
-              <label className="flex items-center gap-2 cursor-pointer hover:text-white transition">
-                <input
-                  type="checkbox"
-                  checked={dontShowAgain}
-                  onChange={(e) => setDontShowAgain(e.target.checked)}
-                  className="rounded border-neutral-600 bg-neutral-900 text-[#C9A227] focus:ring-0 cursor-pointer"
-                />
-                <span className="text-[11px]">Don&apos;t show again today</span>
-              </label>
-
-              <button
-                onClick={() => handleDismissFlyer(currentFlyer.id)}
-                className="text-[11px] font-medium text-neutral-400 hover:text-white transition"
-              >
-                {activeFlyers.length > 1 ? "Next Flyer ❯" : "Dismiss"}
-              </button>
-            </div>
+            {/* If more than 1 flyer exists in queue, show Next Flyer button */}
+            {activeFlyers.length > 1 && (
+              <div className="mt-2.5">
+                <button
+                  onClick={() => handleDismissFlyer(currentFlyer.id)}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-neutral-950/75 border border-white/20 text-xs font-semibold text-white backdrop-blur-md shadow-lg hover:bg-white hover:text-neutral-950 transition-all"
+                >
+                  <span>Next Flyer ❯</span>
+                  <span className="text-[10px] opacity-75">
+                    ({activeFlyers.length - 1} more)
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* 2. TOP-RIGHT NOTICE CARDS (Notice part that comes down in top right without hiding anything) */}
-      {/* Does NOT block the screen, does NOT hide navbar, allows user to browse freely! */}
       {activeToasts.length > 0 && (
         <div className="fixed top-20 sm:top-24 right-3 sm:right-6 z-[9990] flex flex-col gap-3 max-w-[calc(100vw-1.5rem)] sm:max-w-md pointer-events-auto">
           {activeToasts.map((notice, idx) => {
@@ -358,12 +310,12 @@ function renderFlyerCard(notice: Notice) {
   const isCover = notice.imageFit === "cover";
 
   const ImageElement = (
-    <div className="relative group overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border border-white/15 bg-neutral-950 flex items-center justify-center">
+    <div className="relative group overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 bg-neutral-950 flex items-center justify-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={notice.imageUrl || ""}
         alt={notice.title}
-        className={`block max-h-[80vh] max-w-[90vw] sm:max-w-[560px] md:max-w-[640px] w-auto h-auto transition-transform duration-300 ${
+        className={`block max-h-[82vh] max-w-[90vw] sm:max-w-[560px] md:max-w-[640px] w-auto h-auto transition-transform duration-300 ${
           targetUrl ? "group-hover:scale-[1.015]" : ""
         } ${isCover ? "object-cover" : "object-contain"}`}
       />
