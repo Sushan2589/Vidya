@@ -189,22 +189,22 @@ export default function NoticePopup() {
           className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-black/45 backdrop-blur-[4px] animate-in fade-in duration-200"
         >
           {/* Main Modal Card */}
-          <div className="relative flex flex-col w-auto max-w-[94vw] max-h-[92vh] overflow-hidden rounded-xl bg-white shadow-2xl border border-neutral-200/80 animate-in zoom-in-95 duration-200">
+          <div className="relative flex flex-col w-auto max-w-[94vw] max-h-[92vh] overflow-hidden rounded-2xl bg-white shadow-2xl border-2 border-[#16324F]/60 ring-2 ring-[#C9A227]/30 animate-in zoom-in-95 duration-200">
             {/* Header bar matching user's reference: Title on left, Close ✕ on right */}
-            <div className="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 sm:px-5">
-              <h3 className="truncate pr-3 font-sans text-sm sm:text-base font-semibold text-neutral-800">
+            <div className="flex items-center justify-between border-b border-[#16324F]/15 bg-[#16324F] px-4 py-3 sm:px-5">
+              <h3 className="truncate pr-3 font-sans text-sm sm:text-base font-semibold text-[#F3F1EA]">
                 {currentFlyer.heading || currentFlyer.title}
               </h3>
 
               <div className="flex items-center gap-2 shrink-0">
                 {activeFlyers.length > 1 && (
-                  <span className="rounded-full bg-neutral-100 border border-neutral-200 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600">
+                  <span className="rounded-full bg-[#C9A227]/20 border border-[#C9A227]/40 px-2.5 py-0.5 text-[11px] font-semibold text-[#C9A227]">
                     1 of {activeFlyers.length}
                   </span>
                 )}
                 <button
                   onClick={() => handleDismissFlyer(currentFlyer.id)}
-                  className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition"
+                  className="rounded-lg p-1 text-[#F3F1EA]/70 hover:bg-white/15 hover:text-white transition"
                   aria-label="Close notice"
                 >
                   <X className="size-5" />
@@ -256,7 +256,7 @@ export default function NoticePopup() {
 
             {/* Optional bottom bar if multiple flyers exist */}
             {activeFlyers.length > 1 && (
-              <div className="border-t border-neutral-200 bg-white px-4 py-2 flex items-center justify-between text-xs text-neutral-500">
+              <div className="border-t border-[#16324F]/15 bg-[#16324F]/5 px-4 py-2 flex items-center justify-between text-xs text-[#16324F]/70">
                 <span className="text-[11px]">Next flyer will open on close</span>
                 <button
                   onClick={() => handleDismissFlyer(currentFlyer.id)}

@@ -11,14 +11,8 @@ export const eventSchema = z.object({
   heldIn: z.string().optional().default(""),
   date: z.string().min(1, "Date is required"),
   location: z.string().optional().default(""),
-  registrationLink: z.string().min(1, "Registration link is required").url("Must be a valid URL"),
-  imageUrl: z
-    .string()
-    .min(1, "Image is required")
-    .refine(
-      (val) => val.startsWith("data:image/") || /^https?:\/\//.test(val),
-      "Must be an image URL or an uploaded image"
-    ),
+  registrationLink: z.string().optional().default(""),
+  imageUrl: z.string().optional().default(""),
 });
 
 export type EventInput = z.infer<typeof eventSchema>;

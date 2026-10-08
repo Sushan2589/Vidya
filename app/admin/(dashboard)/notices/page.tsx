@@ -614,51 +614,7 @@ export default function NoticesPage() {
                       className="w-full rounded-xl border border-[#16324F]/20 bg-white px-3.5 py-2 text-sm text-[#16324F] placeholder:text-neutral-400 focus:border-[#C9A227] focus:outline-none"
                     />
 
-                    {/* Image Quick Presets for Admin Testing */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-bold text-neutral-400">
-                        Quick Samples:
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData({
-                            ...formData,
-                            imageUrl:
-                              "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop",
-                          })
-                        }
-                        className="rounded-lg bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-200"
-                      >
-                        Math Poster
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData({
-                            ...formData,
-                            imageUrl:
-                              "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
-                          })
-                        }
-                        className="rounded-lg bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-200"
-                      >
-                        Tech Notice
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData({
-                            ...formData,
-                            imageUrl:
-                              "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop",
-                          })
-                        }
-                        className="rounded-lg bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-200"
-                      >
-                        Students Workshop
-                      </button>
-                    </div>
+
 
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-xs font-medium text-[#16324F]">Image Fitting:</span>

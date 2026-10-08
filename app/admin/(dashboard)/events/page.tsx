@@ -35,7 +35,7 @@ const EMPTY_FORM = {
 };
 
 // Fields that must be filled before saving.
-const REQUIRED_FIELDS = ["title", "registrationLink", "imageUrl", "date"] as const;
+const REQUIRED_FIELDS = ["title", "date"] as const;
 
 const inputClass =
   "w-full rounded-lg border border-[#16324F]/20 bg-white px-3.5 py-2.5 text-sm text-[#16324F] outline-none focus:border-[#C9A227] focus:ring-2 focus:ring-[#C9A227]/25";
@@ -290,23 +290,20 @@ export default function EventsPage() {
         </div>
 
         <div>
-          <label className={labelClass}>Image URL *</label>
+          <label className={labelClass}>Image URL</label>
           <input
             value={form.imageUrl}
             onChange={(e) => {
               setForm({ ...form, imageUrl: e.target.value });
               setFieldErrors({ ...fieldErrors, imageUrl: "" });
             }}
-            className={`${inputClass} ${
-              fieldErrors.imageUrl ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-            }`}
+            className={inputClass}
             placeholder="https://..."
           />
-          <FieldError error={fieldErrors.imageUrl} />
         </div>
 
         <div className="sm:col-span-2">
-          <label className={labelClass}>Registration link *</label>
+          <label className={labelClass}>Registration link</label>
           <input
             type="url"
             placeholder="https://"
@@ -315,11 +312,8 @@ export default function EventsPage() {
               setForm({ ...form, registrationLink: e.target.value });
               setFieldErrors({ ...fieldErrors, registrationLink: "" });
             }}
-            className={`${inputClass} ${
-              fieldErrors.registrationLink ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""
-            }`}
+            className={inputClass}
           />
-          <FieldError error={fieldErrors.registrationLink} />
         </div>
 
         {error && (

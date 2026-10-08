@@ -83,7 +83,7 @@ export async function PUT(
         location = ?,
         registration_link = ?,
         image_url = ?,
-        
+        updated_at = datetime('now')
       WHERE id = ?
     `,
     args: [
