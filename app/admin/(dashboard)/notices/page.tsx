@@ -548,28 +548,28 @@ export default function NoticesPage() {
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {[
                       {
-                        type: "popup_combo" as NoticeType,
-                        label: "Image + Text",
-                        desc: "Card with both flyer & styled text",
-                        icon: LayoutTemplate,
-                      },
-                      {
                         type: "popup_image" as NoticeType,
-                        label: "Flyer / Image",
-                        desc: "Poster of any aspect ratio",
+                        label: "Flyer Poster",
+                        desc: "Full modal poster (consecutive queue)",
                         icon: ImageIcon,
                       },
                       {
                         type: "popup_text" as NoticeType,
-                        label: "Text Design",
-                        desc: "Stylized typography & badge",
-                        icon: Type,
+                        label: "Top-Right Notice",
+                        desc: "Slides down in top-right, keeps page open",
+                        icon: Bell,
+                      },
+                      {
+                        type: "popup_combo" as NoticeType,
+                        label: "Image + Text",
+                        desc: "Card with flyer & styled text",
+                        icon: LayoutTemplate,
                       },
                       {
                         type: "banner_text" as NoticeType,
-                        label: "Alert Bar",
+                        label: "Top Bar",
                         desc: "Compact bar with link",
-                        icon: Bell,
+                        icon: Type,
                       },
                     ].map((item) => {
                       const Icon = item.icon;
@@ -943,39 +943,46 @@ function renderPreviewBox(notice: Notice) {
     );
   }
 
-  // Pure Text Design
+  // Top-Right Notice Design (Unobtrusive card that comes down in top right)
   if (notice.noticeType === "popup_text") {
     return (
-      <div
-        className={`relative w-full max-w-md rounded-3xl border p-6 sm:p-8 shadow-2xl ${theme.cardBg} ${theme.border}`}
-      >
-        <div className="flex items-center justify-between">
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${theme.tagBg} ${theme.tagText}`}
-          >
-            {notice.tag || "Notice"}
-          </span>
-          <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-mono">
-            VIDYA
-          </span>
+      <div className="w-full flex flex-col items-end">
+        <div className="w-full text-right pb-1 text-[10px] text-neutral-400 uppercase tracking-widest font-mono">
+          Top-Right Notice Preview (Slides down, keeps page open)
         </div>
+        <div
+          className={`relative w-full max-w-sm rounded-2xl border p-4 sm:p-5 shadow-2xl ${theme.cardBg} ${theme.border}`}
+        >
+          <div className="flex items-center justify-between">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${theme.tagBg} ${theme.tagText}`}
+            >
+              <Bell className="size-3" />
+              {notice.tag || "Notice"}
+            </span>
+            <button className="rounded-lg p-1 text-xs text-neutral-400 hover:text-white" aria-label="Close">
+              <X className="size-3.5" />
+            </button>
+          </div>
 
-        <h3 className={`mt-4 font-serif text-2xl font-bold leading-tight ${theme.accentColor}`}>
-          {notice.heading || notice.title || "Announcement Headline"}
-        </h3>
+          <h3 className={`mt-2 font-serif text-base sm:text-lg font-bold leading-tight ${theme.accentColor}`}>
+            {notice.heading || notice.title || "Notice Headline"}
+          </h3>
 
-        <div className={`mt-3 text-sm leading-relaxed ${theme.textColor}`}>
-          {notice.description ||
-            "Full announcement details, instructions, schedules, or information will be clearly readable here with tailored typography."}
+          <div className={`mt-1.5 text-xs sm:text-sm leading-relaxed line-clamp-3 ${theme.textColor}`}>
+            {notice.description ||
+              "Notice announcement details will appear neatly here in the top right corner without blocking your visitors' view."}
+          </div>
+
+          {notice.buttonText && (
+            <div className="mt-3 flex justify-end">
+              <span className={`inline-flex items-center gap-1 rounded-xl px-3.5 py-1 text-xs font-bold ${theme.btnClass}`}>
+                <span>{notice.buttonText}</span>
+                <ExternalLink className="size-3" />
+              </span>
+            </div>
+          )}
         </div>
-
-        {notice.buttonText && (
-          <button
-            className={`mt-6 w-full rounded-xl py-3 text-sm font-bold transition ${theme.btnClass}`}
-          >
-            {notice.buttonText}
-          </button>
-        )}
       </div>
     );
   }
