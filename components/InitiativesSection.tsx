@@ -14,16 +14,9 @@ const INITIATIVES: Initiative[] = [
   {
     title: "Outreach Campaigns",
     description:
-      "VIDYA has been leading outreach campaigns to raise awareness about olympiads and opportunities across Nepal. What began as our first initiative has now grown into a sustained effort, reaching over 9,000 students across 36 schools to date.",
+      "VIDYA has been leading outreach campaigns to raise awareness about olympiads and opportunities across Nepal. What began as our first initiative has now grown into a sustained effort, reaching over 9,000 students across 5 provinces in Nepal.",
     imageUrl: "https://i.ibb.co/m5BSVjfN/Outreach-VIDYA.jpg",
     startDate: "May 2025",
-  },
-  {
-    title: "VIDYA X JCI Edutech",
-    description:
-      "In an era shaped by technology and AI, VIDYA has collaborated with JCI Jr. to conduct awareness sessions across Chandragiri Municipality, reaching more than 1,000 students. These sessions provide valuable knowledge about AI, technology, and its practical applications.",
-    imageUrl: "https://i.ibb.co/qMhPbBsQ/image-025.jpg",
-    startDate: "July 2026",
   },
   {
     title: "Opportunity Connect Nepal",
@@ -38,6 +31,13 @@ const INITIATIVES: Initiative[] = [
       "VIDYA hosts weekly olympiad workshops featuring international participants and medalists as keynote speakers. These sessions cover a wide range of topics, including international mathematics, physics, chemistry, biology, AI, and astronomy olympiads, among others.",
     imageUrl: "https://i.ibb.co/35Z3rXkc/image-031.jpg",
     startDate: "August 2026",
+  },
+  {
+    title: "VIDYA X JCI Edutech",
+    description:
+      "In an era shaped by technology and AI, VIDYA has collaborated with JCI Jr. to conduct awareness sessions across Chandragiri Municipality, reaching more than 1,000 students. These sessions provide valuable knowledge about AI, technology, and its practical applications.",
+    imageUrl: "https://i.ibb.co/qMhPbBsQ/image-025.jpg",
+    startDate: "July 2026",
   },
 ];
 
