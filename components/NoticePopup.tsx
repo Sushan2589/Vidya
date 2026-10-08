@@ -184,8 +184,8 @@ export default function NoticePopup() {
               handleDismissFlyer(currentFlyer.id);
             }
           }}
-          style={{ backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
-          className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 backdrop-blur-xl animate-in fade-in duration-300"
+          style={{ backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-[#16324F]/50 backdrop-blur-2xl animate-in fade-in duration-300"
         >
           {/* Main flyer container hugging image aspect ratio */}
           <div className="relative flex flex-col items-center max-w-[95vw] max-h-[94vh]">
