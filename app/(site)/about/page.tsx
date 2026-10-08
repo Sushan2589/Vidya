@@ -6,8 +6,7 @@ const About = () => {
   return (
     <div>
       <TeamSection />
-
-      
+      <AboutTimeline />
     </div>
   );
 };
