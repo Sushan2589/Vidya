@@ -26,7 +26,7 @@ export default function Home() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#C9A227]">
-                In the News
+                MEDIA COVERAGE
               </span>
             </div>
 
