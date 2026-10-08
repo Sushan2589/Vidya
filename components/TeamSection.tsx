@@ -21,7 +21,11 @@ const founders: TeamMember[] = [
     role: "Vice President",
     image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/2.png?raw=true", alt: "Sulav Poudel" }
   },
-
+  {
+    name: "Sangam Mudbhari",
+    role: "IT Head",
+    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/8.png?raw=true", alt: "Sangam Mudbhari" }
+  },
   {
     name: "Aayush Marasini",
     role: "Advisor",
@@ -41,11 +45,6 @@ const founders: TeamMember[] = [
     name: "Saugat Kharel",
     role: "Spokesperson",
     image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/7.png?raw=true", alt: "Saugat Kharel" }
-  },
-  {
-    name: "Sangam Mudbhari",
-    role: "IT Head",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/8.png?raw=true", alt: "Sangam Mudbhari" }
   },
   {
     name: "Piyush Pradhan",
