@@ -37,6 +37,8 @@ Production no longer auto-provisions the hardcoded development admin. Provision 
 
 ## Image storage and rich content
 
+Vercel deployment requires Sharp's platform-specific native addon and libvips library. `.npmrc` includes optional dependencies during npm installation; `next.config.ts` explicitly includes `sharp` and `@img/sharp-*` files in server traces so dynamic native loading survives function packaging. The npm lockfile already contains Linux x64 Sharp/libvips entries. After changing this packaging configuration, redeploy on Vercel without the existing build cache. Local Windows checks cannot prove Linux runtime loading; confirm an authenticated upload and a published media response on the new deployment.
+
 No upload provider existed. Images use the existing database. With Turso they persist across server instances without introducing another service. The SQLite fallback requires a persistent disk and a suitable single-host deployment; do not use ephemeral local storage for production content. Authenticated uploads accept static JPEG/PNG/WebP up to 5 MB and 16 million input pixels, re-encode to WebP, remove metadata, resize to at most 1600 pixels, and cap stored output at 2 MB. SVG and invalid images are rejected.
 
 The media endpoint checks publication or authentication for every request and serves responsive width variants through a custom Next Image loader. Draft/unused uploads are private, and media responses are not publicly cached, so unpublishing does not leave an application cache serving private images. Previously downloaded public images cannot be recalled.

@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   typescript: {
     tsconfigPath: process.env.VIDYA_CHECK_TSCONFIG || "tsconfig.json",
   },
+  // Sharp loads platform binaries and libvips dynamically. Keep both in
+  // serverless function traces, including Sharp 0.35's dist-based entry point.
+  outputFileTracingIncludes: {
+    "/*": ["node_modules/sharp/**/*", "node_modules/@img/sharp-*/**/*"],
+  },
   images: {
     remotePatterns: [
       {
