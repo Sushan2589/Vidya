@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/admin/resources", label: "Resources" },
   { href: "/admin/timeline", label: "Timeline" },
   { href: "/admin/notices", label: "Notices & Popups" },
+  { href: "/admin/blog", label: "Blog" },
 ];
 
 export default function DashboardLayout({

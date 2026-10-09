@@ -2,6 +2,40 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Shared by published articles, private previews and the blog editor. */
+.blog-prose { color: #16324f; font-size: 1.0625rem; line-height: 1.85; overflow-wrap: anywhere; }
+.blog-prose > * + * { margin-top: 1.25rem; }
+.blog-prose h2, .blog-prose h3 { font-family: var(--font-cormorant), serif; line-height: 1.25; margin-top: 2.5rem; font-weight: 600; }
+.blog-prose h2 { font-size: 2rem; }
+.blog-prose h3 { font-size: 1.5rem; }
+.blog-prose ul, .blog-prose ol { padding-left: 1.6rem; }
+.blog-prose ul { list-style: disc; }
+.blog-prose ol { list-style: decimal; }
+.blog-prose li + li { margin-top: 0.5rem; }
+.blog-prose li > p { margin-top: 0.25rem; }
+.blog-prose a { color: #755a0b; text-decoration: underline; text-underline-offset: 4px; }
+.blog-prose a:hover { color: #16324f; }
+.blog-prose blockquote { display: flow-root; border-left: 3px solid #c9a227; padding: 0.5rem 1.5rem; background: #16324f05; font-style: italic; }
+.blog-prose pre { padding: 1.25rem; overflow-x: auto; border-radius: 0.75rem; background: #16324f; color: #f3f1ea; font-size: 0.875rem; white-space: pre; }
+.blog-prose code { font-family: var(--font-geist-mono), monospace; font-size: 0.875em; }
+.blog-prose hr { margin-block: 2rem; border-color: #16324f25; }
+.blog-prose figure { margin-block: 2rem; }
+.blog-prose figcaption { margin-top: 0.75rem; font-size: 0.875rem; text-align: center; }
+.blog-prose .tiptap { min-height: 20rem; outline: none; }
+.blog-prose .tiptap:focus-visible { outline: 2px solid #c9a227; outline-offset: 6px; border-radius: 4px; }
+.blog-prose .tiptap > * + * { margin-top: 1.25rem; }
+.blog-prose .tiptap img { max-width: 100%; height: auto; border-radius: 0.75rem; }
+.blog-prose, .blog-prose .tiptap { display: flow-root; }
+.blog-prose .blog-inline-image { max-width: 100%; margin: 1.5rem auto; clear: both; }
+.blog-prose .blog-inline-image[data-align="left"] { float: left; clear: left; margin: 0.5rem 1.5rem 1rem 0; }
+.blog-prose .blog-inline-image[data-align="right"] { float: right; clear: right; margin: 0.5rem 0 1rem 1.5rem; }
+.blog-prose h2, .blog-prose h3, .blog-prose pre, .blog-prose hr { clear: both; }
+.blog-editor-image[data-selected="true"] > div:first-child { outline: 2px solid #c9a227; outline-offset: 3px; border-radius: 0.75rem; }
+.blog-image-resize { cursor: nwse-resize; }
+@media (max-width: 640px) {
+  .blog-prose .blog-inline-image[data-align] { float: none; width: 100% !important; margin: 1.5rem auto; }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

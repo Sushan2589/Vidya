@@ -94,6 +94,7 @@ function OlympiadCard({
               src={olympiad.imageUrl}
               alt={olympiad.title}
               fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
@@ -193,6 +194,7 @@ function OlympiadDetail({
               src={olympiad.imageUrl}
               alt={olympiad.title}
               fill
+              sizes="(max-width: 840px) 92vw, 768px"
               className="object-cover"
             />
           ) : (

@@ -17,8 +17,11 @@ if (url && authToken) {
     ? (process as any).getBuiltinModule("node:sqlite")
     : eval("require")("node:sqlite");
   const { DatabaseSync } = sqliteModule;
-  const sqlite = new DatabaseSync("vidya_local.db");
+  const sqlite = new DatabaseSync(process.env.VIDYA_DATABASE_PATH || "vidya_local.db");
+  // Next's build/server workers may initialize the same local database together.
+  sqlite.exec("PRAGMA busy_timeout = 10000;");
   sqlite.exec("PRAGMA journal_mode = WAL;");
+  sqlite.exec("PRAGMA foreign_keys = ON;");
 
   db = {
     async execute(input: string | { sql: string; args?: unknown[] }) {
@@ -74,6 +77,42 @@ async function initializeDatabase() {
         created_at INTEGER NOT NULL
       )
       `,
+      `CREATE TABLE IF NOT EXISTS blog_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        slug TEXT NOT NULL UNIQUE
+      )`,
+      `CREATE TABLE IF NOT EXISTS blog_media (
+        id TEXT PRIMARY KEY,
+        data_base64 TEXT NOT NULL,
+        width INTEGER NOT NULL,
+        height INTEGER NOT NULL,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS blog_posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        slug TEXT NOT NULL UNIQUE,
+        excerpt TEXT NOT NULL DEFAULT '',
+        content_json TEXT NOT NULL,
+        search_text TEXT NOT NULL DEFAULT '',
+        media_ids TEXT NOT NULL DEFAULT '|',
+        author TEXT NOT NULL,
+        category_id INTEGER NOT NULL REFERENCES blog_categories(id),
+        image_id TEXT REFERENCES blog_media(id),
+        image_alt TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
+        featured INTEGER NOT NULL DEFAULT 0,
+        reading_minutes INTEGER NOT NULL DEFAULT 1,
+        seo_title TEXT NOT NULL DEFAULT '',
+        seo_description TEXT NOT NULL DEFAULT '',
+        published_at INTEGER,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1
+      )`,
+      `CREATE INDEX IF NOT EXISTS blog_posts_public_idx ON blog_posts(status, published_at DESC, id DESC)`,
+      `CREATE INDEX IF NOT EXISTS blog_posts_category_idx ON blog_posts(category_id, status, published_at DESC)`,
       
 
       `
@@ -154,7 +193,7 @@ async function initializeDatabase() {
   try {
     const adminCheck = await db.execute("SELECT COUNT(*) AS count FROM admin_users");
     const count = Number(adminCheck.rows[0]?.count ?? adminCheck.rows[0]?.[0] ?? 0);
-    if (count === 0) {
+    if (count === 0 && process.env.NODE_ENV !== "production") {
       const bcrypt = require("bcryptjs");
       const hash = await bcrypt.hash("admin1234", 10);
       await db.execute({

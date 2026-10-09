@@ -14,52 +14,52 @@ const founders: TeamMember[] = [
   {
     name: "Shubham Shrestha",
     role: "President",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/1.png?raw=true", alt: "Shubham Shrestha" }
+    image: { src: "/assests/team/1.webp", alt: "Shubham Shrestha" }
   },
   {
     name: "Sulav Poudel",
     role: "Vice President",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/2.png?raw=true", alt: "Sulav Poudel" }
+    image: { src: "/assests/team/2.webp", alt: "Sulav Poudel" }
   },
   {
     name: "Sangam Mudbhari",
     role: "IT Head",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/8.png?raw=true", alt: "Sangam Mudbhari" }
+    image: { src: "/assests/team/8.webp", alt: "Sangam Mudbhari" }
   },
   {
     name: "Aayush Marasini",
     role: "Advisor",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/4.png?raw=true", alt: "Aayush Marasini" }
+    image: { src: "/assests/team/4.webp", alt: "Aayush Marasini" }
   },
   {
     name: "Suhit Dhungana",
     role: "Secretary",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/5.png?raw=true", alt: "Suhit Dhungana" }
+    image: { src: "/assests/team/5.webp", alt: "Suhit Dhungana" }
   },
   {
     name: "Prasiddha Thapa",
     role: "Treasurer",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/6.png?raw=true", alt: "Prasiddha Thapa" }
+    image: { src: "/assests/team/6.webp", alt: "Prasiddha Thapa" }
   },
   {
     name: "Saugat Kharel",
     role: "Spokesperson",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/7.png?raw=true", alt: "Saugat Kharel" }
+    image: { src: "/assests/team/7.webp", alt: "Saugat Kharel" }
   },
   {
     name: "Piyush Pradhan",
     role: "Public Relation Officer",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/9.png?raw=true", alt: "Piyush Pradhan" }
+    image: { src: "/assests/team/9.webp", alt: "Piyush Pradhan" }
   },
   {
     name: "Tushar Chimariya",
     role: "Human Resource Manager",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/10.png?raw=true", alt: "Tushar Chimariya" }
+    image: { src: "/assests/team/10.webp", alt: "Tushar Chimariya" }
   },
   {
     name: "Prakrish Acharya",
     role: "Human Resource Manager",
-    image: { src: "https://github.com/Sulav-Poudel/VIDYA-IMG/blob/main/3.png?raw=true", alt: "Prakrish Acharya" }
+    image: { src: "/assests/team/3.webp", alt: "Prakrish Acharya" }
   },
 ];
 
@@ -67,7 +67,7 @@ function TeamPhoto({ image, alt }: { image?: TeamMember["image"]; alt: string })
   return (
     <div className="relative mx-auto mb-5 size-32 overflow-hidden rounded-full border-2 border-[#C9A227]/50 bg-[#16324F]/5 sm:size-36">
       {image ? (
-        <Image src={image.src} alt={image.alt} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+        <Image src={image.src} alt={image.alt} fill sizes="(max-width: 640px) 128px, 144px" className="object-cover" />
       ) : (
         <div className="flex size-full items-center justify-center text-[10px] uppercase tracking-widest text-[#16324F]/35">
           {alt}

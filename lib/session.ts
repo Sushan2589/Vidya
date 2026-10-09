@@ -9,6 +9,9 @@ export const SESSION_COOKIE = "vidya_admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 function getSecretKey() {
+  if (process.env.NODE_ENV === "production" && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
+    throw new Error("SESSION_SECRET must contain at least 32 characters in production.");
+  }
   const secret =
     process.env.SESSION_SECRET ||
     "vidya-secret-super-secure-key-32-chars-long";
