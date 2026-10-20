@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Mail, MapPin } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
+import { newsArticles } from "@/lib/newsArticles";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -14,21 +15,6 @@ const navLinks = [
   { name: "Resources", href: "/resources" },
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
-];
-
-const newsArticles = [
-  {
-    name: "Hamrakura",
-    href: "https://hamrakura.com/news-details/220727/2026-09-16",
-  },
-  {
-    name: "Artha Bulletin",
-    href: "https://arthabulletin.com/2026/09/09/%e0%a4%ae%e0%a4%be%e0%a4%a7%e0%a5%8d%e0%a4%af%e0%a4%ae%e0%a4%bf%e0%a4%95-%e0%a4%b5%e0%a4%bf%e0%a4%a6%e0%a5%8d%e0%a4%af%e0%a4%be%e0%a4%b2%e0%a4%af%e0%a4%b9%e0%a4%b0%e0%a5%82%e0%a4%ae%e0%a4%be-%e0%a4%93/",
-  },
-  {
-    name: "The Thankot Times",
-    href: "https://www.thankottimes.com/2026/10/89723/"
-  }
 ];
 
 const socialLinks = [
@@ -143,14 +129,14 @@ export function Footer() {
             </p>
             <ul className="flex flex-col gap-2.5">
               {newsArticles.map((article) => (
-                <li key={article.name}>
+                <li key={article.title}>
                   <a
                     href={article.href}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-sm text-[#F3F1EA]/65 transition-colors hover:text-[#C9A227]"
                   >
-                    <span>{article.name}</span>
+                    <span>{article.title}</span>
                     <span className="text-xs text-[#C9A227]/70">↗</span>
                   </a>
                 </li>
