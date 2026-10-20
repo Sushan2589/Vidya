@@ -25,6 +25,10 @@ const newsArticles = [
     name: "Artha Bulletin",
     href: "https://arthabulletin.com/2026/09/09/%e0%a4%ae%e0%a4%be%e0%a4%a7%e0%a5%8d%e0%a4%af%e0%a4%ae%e0%a4%bf%e0%a4%95-%e0%a4%b5%e0%a4%bf%e0%a4%a6%e0%a5%8d%e0%a4%af%e0%a4%be%e0%a4%b2%e0%a4%af%e0%a4%b9%e0%a4%b0%e0%a5%82%e0%a4%ae%e0%a4%be-%e0%a4%93/",
   },
+  {
+    name: "The Thankot Times",
+    href: "https://www.thankottimes.com/2026/10/89723/"
+  }
 ];
 
 const socialLinks = [
