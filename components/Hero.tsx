@@ -351,7 +351,7 @@ export function Hero() {
           {/* Students */}
           <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={9000} suffix="+" />
+              <AnimatedCounter value={10200} suffix="+" />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Students Guided
@@ -361,7 +361,7 @@ export function Hero() {
           {/* Provinces */}
           <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={5} />
+              <AnimatedCounter value={6} />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Provinces Reached
@@ -374,7 +374,7 @@ export function Hero() {
           {/* Volunteers */}
           <div className="flex flex-col items-center px-4">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={100} suffix="+" />
+              <AnimatedCounter value={120} suffix="+" />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Volunteers
