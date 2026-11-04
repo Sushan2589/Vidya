@@ -20,7 +20,7 @@ const navLinks = [
 const socialLinks = [
   {
     name: "Instagram",
-    href: "https://www.instagram.com/vidya_edu/",
+    href: "https://www.instagram.com/vidya_nepal/",
     icon: FaInstagram,
   },
   {
