@@ -186,9 +186,33 @@ async function initializeDatabase() {
         created_at INTEGER NOT NULL
       )
       `,
+
+      // Hero / Site statistics (Students Guided, Provinces Reached, Volunteers)
+      `
+      CREATE TABLE IF NOT EXISTS site_stats (
+        id INTEGER PRIMARY KEY,
+        students_guided INTEGER NOT NULL DEFAULT 11500,
+        provinces_reached INTEGER NOT NULL DEFAULT 6,
+        volunteers INTEGER NOT NULL DEFAULT 120,
+        updated_at INTEGER NOT NULL DEFAULT 0
+      )
+      `,
     ],
     "write"
   );
+
+  try {
+    const statsCheck = await db.execute("SELECT COUNT(*) AS count FROM site_stats");
+    const statsCount = Number(statsCheck.rows[0]?.count ?? statsCheck.rows[0]?.[0] ?? 0);
+    if (statsCount === 0) {
+      await db.execute({
+        sql: "INSERT INTO site_stats (id, students_guided, provinces_reached, volunteers, updated_at) VALUES (1, ?, ?, ?, ?)",
+        args: [11500, 6, 120, Date.now()],
+      });
+    }
+  } catch {
+    // ignore if table exists or error
+  }
 
   try {
     const adminCheck = await db.execute("SELECT COUNT(*) AS count FROM admin_users");

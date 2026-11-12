@@ -186,7 +186,48 @@ function ElapsedTime() {
   );
 }
 
-export function Hero() {
+export interface HeroStats {
+  studentsGuided: number;
+  provincesReached: number;
+  volunteers: number;
+}
+
+const DEFAULT_HERO_STATS: HeroStats = {
+  studentsGuided: 11500,
+  provincesReached: 6,
+  volunteers: 120,
+};
+
+export function Hero({ initialStats }: { initialStats?: HeroStats } = {}) {
+  const [stats, setStats] = React.useState<HeroStats>(
+    initialStats ?? DEFAULT_HERO_STATS
+  );
+
+  React.useEffect(() => {
+    let ignore = false;
+    async function loadStats() {
+      try {
+        const res = await fetch("/api/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (!ignore && data && typeof data.studentsGuided === "number") {
+            setStats({
+              studentsGuided: data.studentsGuided,
+              provincesReached: data.provincesReached,
+              volunteers: data.volunteers,
+            });
+          }
+        }
+      } catch {
+        // Fallback to initial/default stats
+      }
+    }
+
+    loadStats();
+    return () => {
+      ignore = true;
+    };
+  }, []);
   return (
     <section className="relative flex min-h-svh items-center justify-center overflow-hidden bg-[#ddddd6]">
       <div
@@ -351,7 +392,7 @@ export function Hero() {
           {/* Students */}
           <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={11500} suffix="+" />
+              <AnimatedCounter value={stats.studentsGuided} suffix="+" />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Students Guided
@@ -361,7 +402,7 @@ export function Hero() {
           {/* Provinces */}
           <div className="flex flex-col items-center px-4 sm:border-r sm:border-[#16324F]/10">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={6} />
+              <AnimatedCounter value={stats.provincesReached} />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Provinces Reached
@@ -374,7 +415,7 @@ export function Hero() {
           {/* Volunteers */}
           <div className="flex flex-col items-center px-4">
             <div className="font-serif text-3xl font-medium tracking-tight text-[#16324F] sm:text-4xl">
-              <AnimatedCounter value={120} suffix="+" />
+              <AnimatedCounter value={stats.volunteers} suffix="+" />
             </div>
             <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#16324F]/50 sm:text-[11px]">
               Volunteers

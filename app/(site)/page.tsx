@@ -1,11 +1,16 @@
 import { Hero } from "@/components/Hero";
 import { InitiativesSection } from "@/components/InitiativesSection";
 import { newsArticles } from "@/lib/newsArticles";
+import { getSiteStats } from "@/lib/db/stats";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const stats = await getSiteStats();
+
   return (
     <main className="bg-neutral-950 text-white">
-      <Hero />
+      <Hero initialStats={stats} />
 
       <section id="news" className="bg-[#ddddd6] px-6 pb-4 pt-2 sm:pb-6">
         <div className="mx-auto max-w-5xl rounded-2xl border border-[#16324F]/10 bg-white/50 px-4 py-3 backdrop-blur-sm sm:px-6">
