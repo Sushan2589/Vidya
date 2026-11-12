@@ -14,7 +14,7 @@ const INITIATIVES: Initiative[] = [
   {
     title: "Outreach Campaigns",
     description:
-      "VIDYA has been leading outreach campaigns to raise awareness about olympiads and opportunities across Nepal. What began as our first initiative has now grown into a sustained effort, reaching over 9,000 students across 5 provinces in Nepal.",
+      "VIDYA has been leading outreach campaigns to raise awareness about olympiads and opportunities across Nepal. What began as our first initiative has now grown into a sustained effort, reaching over 10,850 students across 6 provinces in Nepal.",
     imageUrl: "https://i.ibb.co/m5BSVjfN/Outreach-VIDYA.jpg",
     startDate: "May 2025",
   },
