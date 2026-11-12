@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { Mail, MapPin, Send, CheckCircle2 } from "lucide-react";
 
-import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
+import { FaInstagram } from "react-icons/fa";
 
 const contactDetails = [
   {
@@ -25,16 +25,6 @@ const socialLinks = [
     name: "Instagram",
     href: "https://www.instagram.com/vidya_org/",
     icon: FaInstagram,
-  },
-  {
-    name: "Facebook",
-    href: "https://www.facebook.com/profile.php?id=61575748772295",
-    icon: FaFacebookF,
-  },
-  {
-    name: "LinkedIn",
-    href: "https://www.linkedin.com/company/vidyanepal/",
-    icon: FaLinkedinIn,
   },
 ];
 

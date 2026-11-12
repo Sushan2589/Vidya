@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Mail, MapPin } from "lucide-react";
-import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
+import { FaInstagram } from "react-icons/fa";
 import { newsArticles } from "@/lib/newsArticles";
 
 const navLinks = [
@@ -22,16 +21,6 @@ const socialLinks = [
     name: "Instagram",
     href: "https://www.instagram.com/vidya_org/",
     icon: FaInstagram,
-  },
-  {
-    name: "Facebook",
-    href: "https://www.facebook.com/profile.php?id=61575748772295",
-    icon: FaFacebookF,
-  },
-  {
-    name: "LinkedIn",
-    href: "https://www.linkedin.com/company/vidyanepal/",
-    icon: FaLinkedinIn,
   },
 ];
 
