@@ -88,13 +88,13 @@ export function TeamSection() {
         className="mx-auto mb-20 max-w-2xl text-center"
       >
         <p className="text-base leading-relaxed text-[#16324F]/70 sm:text-lg">
-          VIDYA is a youth-led nonprofit making academic
+          VIDYA is a youth-led organization making academic
           opportunities and Olympiads accessible to students across Nepal — through outreach,
           mentorship, and a growing volunteer network.
         </p>
         <div className="mx-auto my-5 h-px w-16 bg-[#C9A227]/50" />
         <p className="font-serif text-xl italic text-[#16324F] sm:text-2xl">
-          Vidya works to build a Nepal where every student has the confidence to explore,
+          Vidya works to build a World where every student regardless of their geographical location has the confidence to explore,
           challenge themselves, and grow.
         </p>
       </motion.div>
